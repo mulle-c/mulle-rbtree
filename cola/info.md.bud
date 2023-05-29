@@ -1,0 +1,29 @@
+## Info
+
+Red-black trees are difficult to explain without lots of diagrams, so little
+attempt is made to document this code.  However, an excellent discussion can
+be found in the following book, which was used as the reference for writing
+this implementation:
+
+```
+   Introduction to Algorithms
+   Thomas H. Cormen, Charles E. Leiserson, and Ronald L. Rivest
+   MIT Press (1990)
+   ISBN 0-07-013143-0
+```
+
+Some functions use a comparison function pointer, which is expected to have the
+following prototype:
+
+``` c
+   int (compare *)( void *payload_a, void *payload_b);
+```
+
+Interpretation of comparison function return values:
+
+| Return value | Comparison
+|--------------|-------------------
+|  `< 0`       | `a_a < a_b`
+|    `0`       | `a_a == a_b`
+|  `> 0`       | `a_a > a_b`
+
