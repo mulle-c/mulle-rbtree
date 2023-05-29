@@ -1,0 +1,31 @@
+## Example
+
+Here is an example of using `mulle_rbtree` to keep c-strings in sorted order:
+
+
+``` c
+#include <mulle-rbtree/mulle-rbtree.h>
+
+static void  test( void)
+{
+   struct mulle_rbtree   tree;
+   char                  *s;
+
+   mulle_rbtree_init( &tree,
+                      (int (*)( void *, void *)) strcmp,
+                      &mulle_container_valuecallback_copied_cstring,
+                      NULL);
+
+   mulle_rbtree_add( &tree, "VfL");
+   mulle_rbtree_add( &tree, "Bochum");
+   mulle_rbtree_add( &tree, "1984");
+
+   mulle_rbtree_for( &tree, s)
+   {
+      printf( "%s\n", s);
+   }
+   mulle_rbtree_done( &tree);
+}
+```
+
+

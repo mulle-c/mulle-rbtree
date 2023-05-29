@@ -1,0 +1,23 @@
+{
+   project =
+   {
+      description="🍫 mulle-rbtree organizes data in a red/black tree";
+      domain="github";
+      name="mulle-rbtree";
+      user="mulle-c";
+      repo="mulle-rbtree";
+      homepage="https://github.com/mulle-c/mulle-rbtree";
+      license="BSD-3-Licensed"
+   };
+   dependencies =
+   (
+      {
+         description="🛄 Arrays, hashtables and a queue";
+         domain="github";
+         name="mulle-container";
+         repo="mulle-container";
+         url="https://github.com/mulle-c/mulle-container";
+         user="mulle-c";
+      }
+   )
+}
