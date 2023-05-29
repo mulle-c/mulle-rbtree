@@ -91,28 +91,8 @@ struct mulle_rbnode
    struct mulle_rbnode    *_left;
    struct mulle_rbnode    *_right;
    void                   *payload;
-   int                    _color;
+   char                   _color;
 };
-
-static inline void   mulle_rbnode_set_payload( struct mulle_rbnode  *a_node,
-                                               void *payload)
-{
-   if( a_node)
-      a_node->payload = payload;
-}
-
-
-static inline void   *mulle_rbnode_extract_payload( struct mulle_rbnode  *a_node)
-{
-   void   *payload;
-
-   if( ! a_node)
-      return( NULL);
-
-   payload         = a_node->payload;
-   a_node->payload = NULL;
-   return( payload);
-}
 
 
 static inline void   *_mulle_rbnode_get_payload( struct mulle_rbnode  *a_node)
@@ -131,7 +111,8 @@ static inline void   *mulle_rbnode_get_payload( struct mulle_rbnode  *a_node)
 #define MULLE__RBTREE_BASE          \
    struct mulle_rbnode    *_root;   \
    struct mulle_rbnode    _nil;     \
-   struct mulle_storage   _nodes
+   struct mulle_storage   _nodes;   \
+   char                   allow_duplicates
 
 
 /* Root structure. */
@@ -151,13 +132,14 @@ static inline struct mulle_rbnode  *
 
 MULLE_C_NONNULL_FIRST_SECOND
 static inline void   _mulle__rbtree_init_node( struct mulle__rbtree *a_tree,
-                                               struct mulle_rbnode *a_node)
+                                               struct mulle_rbnode *a_node,
+                                               void *payload)
 {
    a_node->_parent  = _mulle__rbtree_get_nil_node( a_tree);
    a_node->_left    = _mulle__rbtree_get_nil_node( a_tree);
    a_node->_right   = _mulle__rbtree_get_nil_node( a_tree);
    a_node->_color   = mulle__rbtree_black;
-   a_node->payload  = 0;
+   a_node->payload  = payload;
 }
 
 
@@ -172,7 +154,16 @@ void   _mulle__rbtree_done( struct mulle__rbtree *a_tree);
 
 
 MULLE_C_NONNULL_FIRST
-struct mulle_rbnode  *_mulle__rbtree_new_node( struct mulle__rbtree *a_tree);
+struct mulle_rbnode  *_mulle__rbtree_new_node( struct mulle__rbtree *a_tree,
+                                               void *payload);
+
+
+MULLE_C_NONNULL_FIRST
+static inline
+void   _mulle__rbtree_free_node( struct mulle__rbtree *a_tree, void *node)
+{
+   _mulle_storage_free( &a_tree->_nodes, node);
+}
 
 
 /* Operations. */
@@ -257,8 +248,9 @@ MULLE_C_NONNULL_FIRST_SECOND
 struct mulle_rbnode    *_mulle__rbtree_find_previous_node( struct mulle__rbtree *a_tree,
                                                            struct mulle_rbnode  *a_node);
 
+// returns -1 if node is already in there according to a_comp, otherwise 0
 MULLE_C_NONNULL_FIRST_SECOND_THIRD
-void   _mulle__rbtree_insert_node( struct mulle__rbtree *a_tree,
+int    _mulle__rbtree_insert_node( struct mulle__rbtree *a_tree,
                                    struct mulle_rbnode *a_node,
                                    int (*a_comp)( void *, void *));
 

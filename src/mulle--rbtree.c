@@ -8,6 +8,7 @@
 
 #include "mulle--rbtree.h"
 
+#include <errno.h>
 
 /*-
  * Copyright (C) 2006 Jason Evans <jasone@FreeBSD.org>.
@@ -69,7 +70,7 @@ void   _mulle__rbtree_init( struct mulle__rbtree *a_tree,
 
    a_tree->_root = _mulle__rbtree_get_nil_node( a_tree);
 
-   _mulle__rbtree_init_node( a_tree, _mulle__rbtree_get_nil_node( a_tree));
+   _mulle__rbtree_init_node( a_tree, _mulle__rbtree_get_nil_node( a_tree), NULL);
    _mulle_storage_init( &a_tree->_nodes,
                         sizeof( struct mulle_rbnode),
                         alignof( struct mulle_rbnode),
@@ -90,14 +91,16 @@ void   _mulle__rbtree_done( struct mulle__rbtree *a_tree)
    }
 }
 
-struct mulle_rbnode  *_mulle__rbtree_new_node( struct mulle__rbtree *a_tree)
+struct mulle_rbnode  *_mulle__rbtree_new_node( struct mulle__rbtree *a_tree,
+                                               void *payload)
 {
    struct mulle_rbnode   *node;
 
    node = _mulle_storage_malloc( &a_tree->_nodes);
-   _mulle__rbtree_init_node( a_tree, node);
+   _mulle__rbtree_init_node( a_tree, node, payload);
    return( node);
 }
+
 
 
 struct mulle_rbnode   *
@@ -239,9 +242,9 @@ static void   _mulle__rbtree_right_rotate_node( struct mulle__rbtree *a_tree,
 
 
 /* a_node is always the first argument to a_comp. */
-void   _mulle__rbtree_insert_node( struct mulle__rbtree *a_tree,
-                                   struct mulle_rbnode *a_node,
-                                   int (*a_comp)( void *, void *))
+int   _mulle__rbtree_insert_node( struct mulle__rbtree *a_tree,
+                                  struct mulle_rbnode *a_node,
+                                  int (*a_comp)( void *, void *))
 {
    struct mulle_rbnode    *x;
    struct mulle_rbnode    *y;
@@ -254,7 +257,9 @@ void   _mulle__rbtree_insert_node( struct mulle__rbtree *a_tree,
    while( y != _mulle__rbtree_get_nil_node( a_tree))
    {
       x = y;
-      c = (a_comp)(a_node->payload, y->payload);
+      c = (*a_comp)(a_node->payload, y->payload);
+      if( ! c && ! a_tree->allow_duplicates)
+         return( EEXIST);
       if( c < 0)
          y = y->_left;
       else
@@ -328,6 +333,7 @@ void   _mulle__rbtree_insert_node( struct mulle__rbtree *a_tree,
       }
    }
    a_tree->_root->_color = mulle__rbtree_black;
+   return( 0);
 }
 
 
