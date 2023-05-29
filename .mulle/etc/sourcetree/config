@@ -1,0 +1,1 @@
+mulle-storage;${MULLE__STORAGE_NODETYPE:-tar};no-all-load,no-cmake-loader,no-cmake-searchpath,no-import;40089838-70DB-4EC9-8865-509BECBB8C53;${MULLE__STORAGE_URL:-https://github.com/mulle-c/mulle-storage/archive/${MULLE_TAG}.tar.gz};${MULLE__STORAGE_BRANCH};${MULLE__STORAGE_TAG:-latest};;
