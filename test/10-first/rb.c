@@ -9,7 +9,7 @@ static int  callback( struct mulle_rbnode *node, void *userinfo)
 {
    char   *payload;
 
-   payload = mulle_rbnode_extract_payload( node);
+   payload = mulle_rbnode_get_payload( node);
    printf( "%s\n", payload);
    mulle_free( payload);
 
@@ -48,14 +48,15 @@ int main( int argc, const char * argv[])
       if( line[ len - 1] == '\n')
          line[ len - 1] = 0;
 
-      node = _mulle__rbtree_new_node( &tree);
-      mulle_rbnode_set_payload( node, mulle_strdup( line));
-      _mulle__rbtree_insert_node( &tree, node, (void *) strcmp);
+      node = _mulle__rbtree_new_node( &tree, mulle_strdup( line));
+      if( _mulle__rbtree_insert_node( &tree, node, (void *) strcmp))
+         abort();
       fprintf( stderr , "inserted: %s\n", line);
 
       line = NULL;
    }
 
+   // clean up payloads (and print)
    _mulle__rbtree_walk( &tree, callback, NULL);
 
    _mulle__rbtree_done( &tree);

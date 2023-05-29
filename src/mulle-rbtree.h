@@ -37,8 +37,10 @@
 
 #include "mulle--rbtree.h"
 
+#include <errno.h>
 
-#define MULLE_RBTREE_VERSION   ((0 << 20) | (0 << 8) | 1)
+
+#define MULLE__RBTREE_VERSION   ((0 << 20) | (0 << 8) | 1)
 
 
 //
@@ -100,27 +102,32 @@ static inline struct mulle_allocator    *
 }
 
 
-
+// 0: success
 MULLE_C_NONNULL_FIRST
-void   _mulle_rbtree_add( struct mulle_rbtree *a_tree, void *payload);
+int   _mulle_rbtree_add( struct mulle_rbtree *a_tree, void *payload);
 
 
-static inline void
+// returns 0 on success
+static inline int
    mulle_rbtree_add( struct mulle_rbtree *a_tree, void *payload)
 {
-   if( a_tree)
-      _mulle_rbtree_add( a_tree, payload);
+   if( ! a_tree)
+      return( EINVAL);
+   return( _mulle_rbtree_add( a_tree, payload));
 }
 
+
+// return 0 on succesful removal
 MULLE_C_NONNULL_FIRST
-void   _mulle_rbtree_remove( struct mulle_rbtree *a_tree, void *payload);
+int   _mulle_rbtree_remove( struct mulle_rbtree *a_tree, void *payload);
 
 
-static inline void
+static inline int
    mulle_rbtree_remove( struct mulle_rbtree *a_tree, void *payload)
 {
-   if( a_tree)
-      _mulle_rbtree_remove( a_tree, payload);
+   if( ! a_tree)
+      return( EINVAL);
+   return( _mulle_rbtree_remove( a_tree, payload));
 }
 
 

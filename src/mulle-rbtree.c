@@ -67,41 +67,52 @@ void   _mulle_rbtree_done( struct mulle_rbtree *a_tree)
 }
 
 
-void   _mulle_rbtree_add( struct mulle_rbtree *a_tree, void *payload)
+int   _mulle_rbtree_add( struct mulle_rbtree *a_tree, void *payload)
 {
    struct mulle_rbnode      *node;
    struct mulle_allocator   *allocator;
 
    allocator = _mulle_rbtree_get_allocator( a_tree);
-   node      = _mulle__rbtree_new_node( (struct mulle__rbtree *) a_tree);
+   // need payload for comparison before insertion, don't change it
+   // afterwards
    payload   = (*a_tree->callback.retain)( &a_tree->callback,
                                            payload,
                                            allocator);
-   mulle_rbnode_set_payload( node, payload);
-   _mulle__rbtree_insert_node( (struct mulle__rbtree *) a_tree,
-                               node,
-                               a_tree->comparison);
+   node      = _mulle__rbtree_new_node( (struct mulle__rbtree *) a_tree, payload);
+
+   if( _mulle__rbtree_insert_node( (struct mulle__rbtree *) a_tree,
+                                   node,
+                                   a_tree->comparison))
+   {
+      (*a_tree->callback.release)( &a_tree->callback,
+                                   payload,
+                                   allocator);
+      _mulle__rbtree_free_node( (struct mulle__rbtree *) a_tree, node);
+      return( EEXIST);
+   }
+
+   return( 0);
 }
 
 
-void
-   _mulle_rbtree_remove( struct mulle_rbtree *a_tree, void *a_key)
+int   _mulle_rbtree_remove( struct mulle_rbtree *a_tree, void *a_key)
 {
    struct mulle_rbnode      *node;
-   void                     *payload;
    struct mulle_allocator   *allocator;
+   void                     *payload;
 
    if( ! a_tree)
-      return;
+      return( EINVAL);
 
    node = _mulle__rbtree_find_node_with_payload( (struct mulle__rbtree *) a_tree,
                                                   a_key,
                                                   a_tree->comparison);
    if( ! node)
-      return;
+      return( ENOENT);
 
    allocator = _mulle_rbtree_get_allocator( a_tree);
    payload   = mulle_rbnode_get_payload( node);
    (*a_tree->callback.release)( &a_tree->callback, payload, allocator);
    _mulle__rbtree_remove_node( (struct mulle__rbtree *) a_tree, node);
+   return( 0);
 }
