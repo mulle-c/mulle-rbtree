@@ -21,6 +21,7 @@ src/reflect
 #
 set( PUBLIC_GENERATED_HEADERS
 src/reflect/_mulle-rbtree-include.h
+src/reflect/_mulle-rbtree-versioncheck.h
 )
 
 #

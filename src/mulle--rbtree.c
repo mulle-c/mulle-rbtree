@@ -82,13 +82,11 @@ void   _mulle__rbtree_init( struct mulle__rbtree *a_tree,
 // the tree won't be cleaned off _nodes though, you have to do this
 void   _mulle__rbtree_done( struct mulle__rbtree *a_tree)
 {
-   if( a_tree)
-   {
-      _mulle_storage_done( &a_tree->_nodes);
+   assert( a_tree);
+   _mulle_storage_done( &a_tree->_nodes);
 #ifdef DEBUG
-      memset( a_tree, 0xFD, sizeof( struct mulle__rbtree));
+   memset( a_tree, 0xFD, sizeof( struct mulle__rbtree));
 #endif
-   }
 }
 
 struct mulle_rbnode  *_mulle__rbtree_new_node( struct mulle__rbtree *a_tree,
