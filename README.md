@@ -1,6 +1,6 @@
 # mulle-rbtree
 
-#### 🍫 mulle-rbtree organize data in a red/black tree
+#### 🍫 mulle-rbtree organizes data in a red/black tree
 
 This is an implementation of a [red-black tree](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree).
 [mulle-allocator](//github.com/mulle-c/mulle-allocator) is used to simplify
@@ -97,6 +97,8 @@ Install the requirements:
 | Requirements                                 | Description
 |----------------------------------------------|-----------------------
 | [mulle-container](https://github.com/mulle-c/mulle-container)             | 🛄 Arrays, hashtables and a queue
+
+Download the latest [tar](https://github.com/mulle-c/mulle-rbtree/archive/refs/tags/latest.tar.gz) or [zip](https://github.com/mulle-c/mulle-rbtree/archive/refs/tags/latest.zip) archive and unpack it.
 
 Install **mulle-rbtree** into `/usr/local` with [cmake](https://cmake.org):
 
