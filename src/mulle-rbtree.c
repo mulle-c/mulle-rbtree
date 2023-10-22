@@ -101,8 +101,7 @@ int   _mulle_rbtree_remove( struct mulle_rbtree *a_tree, void *a_key)
    struct mulle_allocator   *allocator;
    void                     *payload;
 
-   if( ! a_tree)
-      return( EINVAL);
+   assert( a_tree);
 
    node = _mulle__rbtree_find_node_with_payload( (struct mulle__rbtree *) a_tree,
                                                   a_key,
