@@ -7,9 +7,10 @@ This is an implementation of a [red-black tree](https://en.wikipedia.org/wiki/Re
 memory management. It isn't thread-safe.
 
 
+
 | Release Version                                       | Release Notes
 |-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-c/mulle-rbtree.svg?branch=release) [![Build Status](https://github.com/mulle-c/mulle-rbtree/workflows/CI/badge.svg?branch=release)](//github.com/mulle-c/mulle-rbtree/actions)| [RELEASENOTES](RELEASENOTES.md) |
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-c/mulle-rbtree.svg?branch=release) [![Build Status](https://github.com/mulle-c/mulle-rbtree/workflows/CI/badge.svg?branch=release)](//github.com/mulle-c/mulle-rbtree/actions) | [RELEASENOTES](RELEASENOTES.md) |
 
 
 
@@ -114,7 +115,7 @@ cmake --install build --config Release
 
 ## Author
 
-[Nat!](https://mulle-kybernetik.com/weblog) for Mulle kybernetiK
+[Nat!](https://mulle-kybernetik.com/weblog) for Mulle kybernetiK  
 
 
 
