@@ -3,7 +3,7 @@
    "version" : "0.0.1",
    "description" : "🍫 mulle-rbtree organizes data in a red/black tree",
    "keywords" : [],
-   "license" : "BSD-3-Clause",
+   "license" : "BSD-3-Licensed",
    "repo" : "mulle-c/mulle-rbtree",
    "src" : [
       "src/generic/include.h",

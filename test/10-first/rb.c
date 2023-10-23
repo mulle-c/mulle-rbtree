@@ -23,7 +23,7 @@ static int  callback( struct mulle_rbnode *node, void *userinfo)
 int main( int argc, const char * argv[])
 {
    char                  *line = NULL;
-   size_t                size;
+   size_t                size = 0;
    size_t                len;
    struct mulle__rbtree   tree;
    struct mulle_rbnode   *node;
@@ -35,11 +35,8 @@ int main( int argc, const char * argv[])
    {
       if( getline( &line, &size, stdin) == -1)
       {
-         if( getline( &line, 0, stdin) == -1)
-         {
-            free( line);
-            break;
-         }
+         free( line);
+         break;
       }
 
       len = strlen( line);
@@ -52,8 +49,6 @@ int main( int argc, const char * argv[])
       if( _mulle__rbtree_insert_node( &tree, node, (void *) strcmp))
          abort();
       fprintf( stderr , "inserted: %s\n", line);
-
-      line = NULL;
    }
 
    // clean up payloads (and print)

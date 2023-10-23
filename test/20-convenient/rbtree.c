@@ -18,7 +18,7 @@ static int  callback( void *payload, void *userinfo)
 int main( int argc, const char * argv[])
 {
    char                   *line = NULL;
-   size_t                 size;
+   size_t                 size = 0;
    size_t                 len;
    struct mulle_rbtree    tree;
 
@@ -31,11 +31,8 @@ int main( int argc, const char * argv[])
    {
       if( getline( &line, &size, stdin) == -1)
       {
-         if( getline( &line, 0, stdin) == -1)
-         {
-            free( line);
-            break;
-         }
+         free( line);
+         break;
       }
 
       len = strlen( line);
@@ -46,8 +43,6 @@ int main( int argc, const char * argv[])
 
       mulle_rbtree_add( &tree, line);
       fprintf( stderr , "inserted: %s\n", line);
-
-      line = NULL;
    }
 
    mulle_rbtree_walk( &tree, callback, NULL);
