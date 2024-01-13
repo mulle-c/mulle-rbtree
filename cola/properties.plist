@@ -7,17 +7,17 @@
       user="mulle-c";
       repo="mulle-rbtree";
       homepage="https://github.com/mulle-c/mulle-rbtree";
-      license="BSD-3-Licensed"
+      license="BSD-3-Clause";
    };
    dependencies =
    (
       {
-         description="🛄 Arrays, hashtables and a queue";
+         description="🛅 Memory management for tree nodes";
          domain="github";
-         name="mulle-container";
-         repo="mulle-container";
-         url="https://github.com/mulle-c/mulle-container";
+         name="mulle-storage";
+         repo="mulle-storage";
+         url="https://github.com/mulle-c/mulle-storage";
          user="mulle-c";
       }
-   )
+   );
 }
