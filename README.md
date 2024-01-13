@@ -97,7 +97,7 @@ Install the requirements:
 
 | Requirements                                 | Description
 |----------------------------------------------|-----------------------
-| [mulle-container](https://github.com/mulle-c/mulle-container)             | 🛄 Arrays, hashtables and a queue
+| [mulle-storage](https://github.com/mulle-c/mulle-storage)             | 🛅 Memory management for tree nodes
 
 Download the latest [tar](https://github.com/mulle-c/mulle-rbtree/archive/refs/tags/latest.tar.gz) or [zip](https://github.com/mulle-c/mulle-rbtree/archive/refs/tags/latest.zip) archive and unpack it.
 
