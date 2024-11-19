@@ -1,6 +1,6 @@
 {
    "name" : "mulle-rbtree",
-   "version" : "0.0.1",
+   "version" : "0.0.2",
    "description" : "🍫 mulle-rbtree organizes data in a red/black tree",
    "keywords" : [],
    "license" : "BSD-3-Clause",
