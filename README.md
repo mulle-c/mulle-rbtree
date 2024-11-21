@@ -10,7 +10,7 @@ memory management. It isn't thread-safe.
 
 | Release Version                                       | Release Notes
 |-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-c/mulle-rbtree.svg?branch=release) [![Build Status](https://github.com/mulle-c/mulle-rbtree/workflows/CI/badge.svg?branch=release)](//github.com/mulle-c/mulle-rbtree/actions) | [RELEASENOTES](RELEASENOTES.md) |
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-c/mulle-rbtree.svg?branch=master) [![Build Status](https://github.com/mulle-c/mulle-rbtree/workflows/CI/badge.svg?branch=master)](//github.com/mulle-c/mulle-rbtree/actions) | [RELEASENOTES](RELEASENOTES.md) |
 
 
 
