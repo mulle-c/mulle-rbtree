@@ -1,0 +1,1 @@
+mulle-rbtree;${MULLE__RBTREE_NODETYPE:-tar};;6FA5B372-C5B0-4501-AFCB-9BE121B4BD9B;${MULLE__RBTREE_URL:-https://github.com/mulle-c/mulle-rbtree/archive/${MULLE_TAG}.tar.gz};${MULLE__RBTREE_BRANCH};${MULLE__RBTREE_TAG:-latest};;
