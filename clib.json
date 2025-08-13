@@ -7,6 +7,8 @@
    "repo" : "mulle-c/mulle-rbtree",
    "src" : [
       "src/generic/include.h",
+      "src/mulle--rbtree-debug.c",
+      "src/mulle--rbtree-debug.h",
       "src/mulle--rbtree.c",
       "src/mulle--rbtree.h",
       "src/mulle-rbtree.c",

@@ -9,7 +9,7 @@ static int  callback( struct mulle_rbnode *node, void *userinfo)
 {
    char   *payload;
 
-   payload = mulle_rbnode_get_payload( node);
+   payload = _mulle_rbnode_get_payload( node);
    printf( "%s\n", payload);
    mulle_free( payload);
 
@@ -25,7 +25,7 @@ int main( int argc, const char * argv[])
    char                  *line = NULL;
    size_t                size = 0;
    size_t                len;
-   struct mulle__rbtree   tree;
+   struct mulle__rbtree  tree;
    struct mulle_rbnode   *node;
    void                  *payload;
 

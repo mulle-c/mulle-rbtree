@@ -35,6 +35,7 @@ src/generic/include.h
 # contents selected with patternfile ??-header--public-headers
 #
 set( PUBLIC_HEADERS
+src/mulle--rbtree-debug.h
 src/mulle--rbtree.h
 src/mulle-rbtree.h
 )
