@@ -1,0 +1,832 @@
+=== Length Tree Test ===
+
+Test 1: Basic insertion
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "I" (length=1, total=1)
+Node: "am" (length=2, total=4)
+Node: "a" (length=1, total=1)
+Node: "very" (length=4, total=28)
+Node: "fine" (length=4, total=4)
+Node: "quick" (length=5, total=20)
+Node: "and" (length=3, total=3)
+Node: "brown" (length=5, total=11)
+Node: "fox" (length=3, total=3)
+
+Tree structure:
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                        ver 28(b)
+        //////////////////// \\\\\\\\\\
+    am 4(r)                        qui 20(r)
+    /// \\\                   ///////// \\\\
+I 1(b)  a 1(b)           fin 4(b)       bro 11(b)
+                                        //// \\\\
+                                   and 3(r)  fox 3(r)
+
+Test 2: Position lookup demo
+============================
+Total document length: 28 characters
+
+Character-by-character breakdown:
+Position 0: 'I' (word: "I", offset: 0)
+Position 1: 'a' (word: "am", offset: 0)
+Position 2: 'm' (word: "am", offset: 1)
+Position 3: 'a' (word: "a", offset: 0)
+Position 4: 'v' (word: "very", offset: 0)
+Position 5: 'e' (word: "very", offset: 1)
+Position 6: 'r' (word: "very", offset: 2)
+Position 7: 'y' (word: "very", offset: 3)
+Position 8: 'f' (word: "fine", offset: 0)
+Position 9: 'i' (word: "fine", offset: 1)
+Position 10: 'n' (word: "fine", offset: 2)
+Position 11: 'e' (word: "fine", offset: 3)
+Position 12: 'q' (word: "quick", offset: 0)
+Position 13: 'u' (word: "quick", offset: 1)
+Position 14: 'i' (word: "quick", offset: 2)
+Position 15: 'c' (word: "quick", offset: 3)
+Position 16: 'k' (word: "quick", offset: 4)
+Position 17: 'a' (word: "and", offset: 0)
+Position 18: 'n' (word: "and", offset: 1)
+Position 19: 'd' (word: "and", offset: 2)
+Position 20: 'b' (word: "brown", offset: 0)
+Position 21: 'r' (word: "brown", offset: 1)
+Position 22: 'o' (word: "brown", offset: 2)
+Position 23: 'w' (word: "brown", offset: 3)
+Position 24: 'n' (word: "brown", offset: 4)
+Position 25: 'f' (word: "fox", offset: 0)
+Position 26: 'o' (word: "fox", offset: 1)
+Position 27: 'x' (word: "fox", offset: 2)
+
+Test 3: Split functionality
+==========================
+Before split:
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "Hello" (length=5, total=5)
+Node: "World" (length=5, total=14)
+Node: "Test" (length=4, total=4)
+
+Splitting at position 2...
+Split successful!
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "He" (length=2, total=2)
+Node: "-" (length=1, total=6)
+Node: "llo" (length=3, total=3)
+Node: "World" (length=5, total=15)
+Node: "Test" (length=4, total=4)
+
+Tree structure after split:
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+               Wor 15(b)
+         ////////// \\\\\\\\\\\
+     - 6(b)                Tes 4(b)
+    //// \\\\
+He 2(r)  llo 3(r)
+
+Test 4: Split first word at various positions
+=============================================
+Before splitting first word:
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "FirstWord" (length=9, total=9)
+Node: "SecondWord" (length=10, total=28)
+Node: "ThirdWord" (length=9, total=9)
+
+Splitting first word at position 3...
+Split first word successful!
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "Fir" (length=3, total=3)
+Node: "INSERT" (length=6, total=15)
+Node: "stWord" (length=6, total=6)
+Node: "SecondWord" (length=10, total=34)
+Node: "ThirdWord" (length=9, total=9)
+
+Splitting first word at position 1...
+Split first word at position 1 successful!
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "F" (length=1, total=1)
+Node: "X" (length=1, total=4)
+Node: "ir" (length=2, total=2)
+Node: "INSERT" (length=6, total=16)
+Node: "stWord" (length=6, total=6)
+Node: "SecondWord" (length=10, total=35)
+Node: "ThirdWord" (length=9, total=9)
+
+Tree structure after second split:
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                              Sec 35(b)
+                   /////////////// \\\\\\\\\\\\\\\
+              INS 16(r)                       Thi 9(b)
+        ////////// \\\\\\\\\\
+    X 4(b)               stW 6(b)
+    /// \\\
+F 1(r)  ir 2(r)
+
+Test 5: Split second word at various positions
+==============================================
+Before splitting second word:
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "Alpha" (length=5, total=5)
+Node: "BetaGamma" (length=9, total=19)
+Node: "Delta" (length=5, total=5)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+     Bet 19(b)
+     //// \\\\
+Alp 5(r)  Del 5(r)
+
+Splitting second word at position 2 within word...
+Split second word successful!
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "Alpha" (length=5, total=5)
+Node: "Be" (length=2, total=24)
+Node: "SPLIT" (length=5, total=5)
+Node: "taGamma" (length=7, total=17)
+Node: "Delta" (length=5, total=5)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+          Be 24(b)
+     ///////// \\\\
+Alp 5(b)       taG 17(b)
+               //// \\\\
+          SPL 5(r)  Del 5(r)
+
+Splitting second word at position 0 within word...
+Split second word at start successful!
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "Alpha" (length=5, total=10)
+Node: "START" (length=5, total=5)
+Node: "Be" (length=2, total=29)
+Node: "SPLIT" (length=5, total=5)
+Node: "taGamma" (length=7, total=17)
+Node: "Delta" (length=5, total=5)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+             Be 29(b)
+ //////////////// \\\\\\\\\\\\
+                          taG 17(b)
+ \\\                      //// \\\\
+STA 5(r)             SPL 5(r)  Del 5(r)
+
+Test 6: Multiple splits on same word
+====================================
+Before multiple splits:
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "ABCDEFGHIJ" (length=10, total=15)
+Node: "After" (length=5, total=5)
+
+First split at position 3...
+First split successful!
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "ABC" (length=3, total=3)
+Node: "X1" (length=2, total=17)
+Node: "DEFGHIJ" (length=7, total=7)
+Node: "After" (length=5, total=12)
+
+Second split at position 5 (within original word)...
+Second split successful!
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "ABC" (length=3, total=3)
+Node: "X1" (length=2, total=19)
+Node: "X2" (length=2, total=2)
+Node: "DEFGHIJ" (length=7, total=14)
+Node: "After" (length=5, total=5)
+
+Testing edge cases:
+Split at position 0 (boundary):
+Split at end position 22 (boundary):
+
+Final tree state:
+Length Tree Contents (in-order traversal):
+=========================================
+Node: ">>>" (length=3, total=3)
+Node: "ABC" (length=3, total=6)
+Node: "X1" (length=2, total=25)
+Node: "X2" (length=2, total=2)
+Node: "DEFGHIJ" (length=7, total=17)
+Node: "After" (length=5, total=8)
+Node: "<<<" (length=3, total=3)
+
+Final tree structure:
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                X1 25(b)
+         /////////// \\\\\\\
+    ABC 6(b)            DEF 17(r)
+     ///                ////
+>>> 3(r)            X2 2(Aft 8(b)
+                              \\\
+                             <<< 3(r)
+Test 1: Basic insertion
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "AB" (length=2, total=3)
+Node: "CD" (length=2, total=7)
+Node: "EF" (length=2, total=2)
+Node: "GH" (length=2, total=17)
+Node: "IJ" (length=2, total=2)
+Node: "KL" (length=2, total=8)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                          GH 17(b)
+              //////////////// \\\\\\\\\\\
+          CD 7(r)                      KL 8(r)
+       ////// \\\\\\                   /// \
+   AB 3(b)       EF 2(b)           IJ 2(bMN 4(b)
+    //                                       \\
+- 1(r)                                      OP 2(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=4)
+Node: "-" (length=1, total=2)
+Node: "B" (length=1, total=1)
+Node: "CD" (length=2, total=8)
+Node: "EF" (length=2, total=2)
+Node: "GH" (length=2, total=18)
+Node: "IJ" (length=2, total=2)
+Node: "KL" (length=2, total=8)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                     GH 18(b)
+                      /////////////////// \\\\\\\\\\\\\\\
+                  CD 8(b)                             KL 8(b)
+        ///////////// \\\\\\\\\\\\\                   /// \
+    A 4(r)                      EF 2(b)           IJ 2(bMN 4(b)
+    ///                                                     \\
+- 1(b- 2(b)                                                OP 2(r)
+         \\
+        B 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "CD" (length=2, total=9)
+Node: "EF" (length=2, total=2)
+Node: "GH" (length=2, total=19)
+Node: "IJ" (length=2, total=2)
+Node: "KL" (length=2, total=8)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                            GH 19(b)
+                            //////////////////// \\\\\\\\\\\\\\\\
+                        CD 9(b)                               KL 8(b)
+            /////////////// \\\\\\\\\\\\\\\                   /// \
+        A 5(r)                          EF 2(b)           IJ 2(bMN 4(b)
+    /////// \\\                                                     \\
+- 1(b)      B 3(b)                                                 OP 2(r)
+            /// \\\
+        - 1(r)  - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=10)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=4)
+Node: "EF" (length=2, total=2)
+Node: "GH" (length=2, total=20)
+Node: "IJ" (length=2, total=2)
+Node: "KL" (length=2, total=8)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                      GH 20(b)
+                                ////////////////////////// \\\\\\\\\\\\\\\\\\\\\\
+                            C 10(b)                                           KL 8(b)
+            /////////////////// \\\\\\\\\\\\\\\                               /// \
+        A 5(r)                              D 4(b)                        IJ 2(bMN 4(b)
+    /////// \\\                             /// \\\                                 \\
+- 1(b)      B 3(b)                      - 1(r)  EF 2(r)                            OP 2(r)
+            /// \\\
+        - 1(r)  - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=11)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "EF" (length=2, total=3)
+Node: "GH" (length=2, total=21)
+Node: "IJ" (length=2, total=2)
+Node: "KL" (length=2, total=8)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                          GH 21(b)
+                                ////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\
+                            C 11(b)                                                   KL 8(b)
+            /////////////////// \\\\\\\\\\\\\\\                                       /// \
+        A 5(r)                              D 5(r)                                IJ 2(bMN 4(b)
+    /////// \\\                             /// \\\\\\                                      \\
+- 1(b)      B 3(b)                      - 1(b)     EF 3(b)                                 OP 2(r)
+            /// \\\                                 //
+        - 1(r)  - 1(r)                          - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=12)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=6)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=4)
+Node: "-" (length=1, total=2)
+Node: "F" (length=1, total=1)
+Node: "GH" (length=2, total=22)
+Node: "IJ" (length=2, total=2)
+Node: "KL" (length=2, total=8)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                    GH 22(b)
+                                    //////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                C 12(r)                                                              KL 8(b)
+            /////////////////////// \\\\\\\\\\\\\\\                                                  /// \
+        A 5(b)                                  D 6(b)                                           IJ 2(bMN 4(b)
+    /////// \\\                             /////// \\\                                                    \\
+- 1(b)      B 3(b)                      - 1(b)      E 4(r)                                                OP 2(r)
+            /// \\\                                 ///
+        - 1(r)  - 1(r)                          - 1(b- 2(b)
+                                                         \\
+                                                        F 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "GH" (length=2, total=23)
+Node: "IJ" (length=2, total=2)
+Node: "KL" (length=2, total=8)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                          GH 23(b)
+                                        ////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(r)                                                                  KL 8(b)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                      /// \
+        A 5(b)                                      D 7(b)                                               IJ 2(bMN 4(b)
+    /////// \\\                             /////////// \\\                                                        \\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                                    OP 2(r)
+            /// \\\                                 /////// \\\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)
+                                                            /// \\\
+                                                        - 1(r)  - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=24)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=4)
+Node: "IJ" (length=2, total=2)
+Node: "KL" (length=2, total=10)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                   G 24(b)
+                                        ////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(r)                                                                           KL 10(b)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////// \\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 4(b)            MN 4(b)
+    /////// \\\                             /////////// \\\                                                  /// \\\               \\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(r)  IJ 2(r)          OP 2(r)
+            /// \\\                                 /////// \\\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)
+                                                            /// \\\
+                                                        - 1(r)  - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=25)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "IJ" (length=2, total=3)
+Node: "KL" (length=2, total=11)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                       G 25(b)
+                                        ////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(r)                                                                               KL 11(b)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////// \\\\\\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 5(r)                    MN 4(b)
+    /////// \\\                             /////////// \\\                                                  /// \\\\\\                    \\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)     IJ 3(b)               OP 2(r)
+            /// \\\                                 /////// \\\                                                      //
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                               - 1(r)
+                                                            /// \\\
+                                                        - 1(r)  - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=26)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "I" (length=1, total=12)
+Node: "-" (length=1, total=2)
+Node: "J" (length=1, total=1)
+Node: "KL" (length=2, total=8)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                          G 26(b)
+                                        ///////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(r)                                                                                    I 12(b)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////////// \\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 3(r)                    KL 8(r)
+    /////// \\\                             /////////// \\\                                                  /// \\\              //////// \\\\\\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)  - 1(b)       - 2(b)          MN 4(b)
+            /// \\\                                 /////// \\\                                                                   \\              \\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                                               J 1(r)          OP 2(r)
+                                                            /// \\\
+                                                        - 1(r)  - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=27)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "I" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "J" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "KL" (length=2, total=9)
+Node: "MN" (length=2, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                              G 27(b)
+                                        ///////////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(r)                                                                                        I 13(b)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////////////// \\\\\\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 3(r)                            KL 9(r)
+    /////// \\\                             /////////// \\\                                                  /// \\\                     ///////// \\\\\\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)  - 1(b)              J 3(b)           MN 4(b)
+            /// \\\                                 /////// \\\                                                                      /// \\\              \\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                                               - 1(r)  - 1(r)          OP 2(r)
+                                                            /// \\\
+                                                        - 1(r)  - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=28)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "I" (length=1, total=14)
+Node: "-" (length=1, total=1)
+Node: "J" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "K" (length=1, total=10)
+Node: "-" (length=1, total=2)
+Node: "L" (length=1, total=1)
+Node: "MN" (length=2, total=6)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                                      G 28(b)
+                                        ///////////////////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(r)                                                                                                I 14(r)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////////////////////// \\\\\\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 3(b)                                    K 10(b)
+    /////// \\\                             /////////// \\\                                                  /// \\\                     ///////////////// \\\\\\\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)  - 1(b)              J 3(b)                    MN 6(r)
+            /// \\\                                 /////// \\\                                                                      /// \\\              //////// \\\\\\\\\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                                               - 1(r)  - 1(r)       - 2(b)             OP 2(b)
+                                                            /// \\\                                                                                       \\
+                                                        - 1(r)  - 1(r)                                                                                   L 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=29)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "I" (length=1, total=15)
+Node: "-" (length=1, total=1)
+Node: "J" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "K" (length=1, total=11)
+Node: "-" (length=1, total=1)
+Node: "L" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "MN" (length=2, total=7)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                                          G 29(b)
+                                        ///////////////////////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(r)                                                                                                    I 15(r)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////////////////////////// \\\\\\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 3(b)                                        K 11(b)
+    /////// \\\                             /////////// \\\                                                  /// \\\                     ///////////////////// \\\\\\\\\\\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)  - 1(b)              J 3(b)                            MN 7(r)
+            /// \\\                                 /////// \\\                                                                      /// \\\                     ///////// \\\\\\\\\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                                               - 1(r)  - 1(r)              L 3(b)              OP 2(b)
+                                                            /// \\\                                                                                          /// \\\
+                                                        - 1(r)  - 1(r)                                                                                   - 1(r)  - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=30)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "I" (length=1, total=16)
+Node: "-" (length=1, total=1)
+Node: "J" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "K" (length=1, total=12)
+Node: "-" (length=1, total=1)
+Node: "L" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "M" (length=1, total=8)
+Node: "-" (length=1, total=1)
+Node: "N" (length=1, total=4)
+Node: "OP" (length=2, total=2)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                                              G 30(b)
+                                        ///////////////////////////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(r)                                                                                                        I 16(r)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////////////////////////////// \\\\\\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 3(b)                                            K 12(b)
+    /////// \\\                             /////////// \\\                                                  /// \\\                     ///////////////////////// \\\\\\\\\\\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)  - 1(b)              J 3(b)                                M 8(r)
+            /// \\\                                 /////// \\\                                                                      /// \\\                     ///////////// \\\\\\\\\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                                               - 1(r)  - 1(r)              L 3(b)                  N 4(b)
+                                                            /// \\\                                                                                          /// \\\                 /// \\\
+                                                        - 1(r)  - 1(r)                                                                                   - 1(r)  - 1(r)          - 1(r)  OP 2(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=31)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "I" (length=1, total=17)
+Node: "-" (length=1, total=1)
+Node: "J" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "K" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "L" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "M" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "N" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "OP" (length=2, total=3)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                                                  G 31(b)
+                                        ///////////////////////////////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(r)                                                                                                            I 17(r)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////////////////////////////////// \\\\\\\\\\\\\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 3(b)                                                       M 13(b)
+    /////// \\\                             /////////// \\\                                                  /// \\\                                   ////////////////////// \\\\\\\\\\\\\\\\\\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)  - 1(b)                            K 7(r)                                    N 5(r)
+            /// \\\                                 /////// \\\                                                                          ///////////// \\\\\\\\\                             /// \\\\\\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                                                   J 3(b)                  L 3(b)                      - 1(b)     OP 3(b)
+                                                            /// \\\                                                                  /// \\\                 /// \\\                                 //
+                                                        - 1(r)  - 1(r)                                                           - 1(r)  - 1(r)          - 1(r)  - 1(r)                          - 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=32)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "I" (length=1, total=18)
+Node: "-" (length=1, total=1)
+Node: "J" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "K" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "L" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "M" (length=1, total=14)
+Node: "-" (length=1, total=1)
+Node: "N" (length=1, total=6)
+Node: "-" (length=1, total=1)
+Node: "O" (length=1, total=4)
+Node: "-" (length=1, total=2)
+Node: "P" (length=1, total=1)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                                                      G 32(b)
+                                        ///////////////////////////////////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(b)                                                                                                                I 18(b)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////////////////////////////////////// \\\\\\\\\\\\\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 3(b)                                                           M 14(r)
+    /////// \\\                             /////////// \\\                                                  /// \\\                                   ////////////////////////// \\\\\\\\\\\\\\\\\\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)  - 1(b)                            K 7(b)                                        N 6(b)
+            /// \\\                                 /////// \\\                                                                          ///////////// \\\\\\\\\                             /////// \\\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                                                   J 3(b)                  L 3(b)                      - 1(b)      O 4(r)
+                                                            /// \\\                                                                  /// \\\                 /// \\\                                 ///
+                                                        - 1(r)  - 1(r)                                                           - 1(r)  - 1(r)          - 1(r)  - 1(r)                          - 1(b- 2(b)
+                                                                                                                                                                                                          \\
+                                                                                                                                                                                                         P 1(r)
+Length Tree Contents (in-order traversal):
+=========================================
+Node: "-" (length=1, total=1)
+Node: "A" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "B" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "C" (length=1, total=13)
+Node: "-" (length=1, total=1)
+Node: "D" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "E" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "F" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "G" (length=1, total=33)
+Node: "-" (length=1, total=1)
+Node: "H" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "I" (length=1, total=19)
+Node: "-" (length=1, total=1)
+Node: "J" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "K" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "L" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Node: "M" (length=1, total=15)
+Node: "-" (length=1, total=1)
+Node: "N" (length=1, total=7)
+Node: "-" (length=1, total=1)
+Node: "O" (length=1, total=5)
+Node: "-" (length=1, total=1)
+Node: "P" (length=1, total=3)
+Node: "-" (length=1, total=1)
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                                                          G 33(b)
+                                        ///////////////////////////////////////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(b)                                                                                                                    I 19(b)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 3(b)                                                               M 15(r)
+    /////// \\\                             /////////// \\\                                                  /// \\\                                   ////////////////////////////// \\\\\\\\\\\\\\\\\\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)  - 1(b)                            K 7(b)                                            N 7(b)
+            /// \\\                                 /////// \\\                                                                          ///////////// \\\\\\\\\                             /////////// \\\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                                                   J 3(b)                  L 3(b)                      - 1(b)          O 5(r)
+                                                            /// \\\                                                                  /// \\\                 /// \\\                                 /////// \\\
+                                                        - 1(r)  - 1(r)                                                           - 1(r)  - 1(r)          - 1(r)  - 1(r)                          - 1(b)      P 3(b)
+                                                                                                                                                                                                             /// \\\
+                                                                                                                                                                                                         - 1(r)  - 1(r)
+
+Tree structure:
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+                                                                                                                          G 33(b)
+                                        ///////////////////////////////////////////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                    C 13(b)                                                                                                                    I 19(b)
+            /////////////////////////// \\\\\\\\\\\\\\\                                                          ///////////////////////////////////////////////// \\\\\\\\\\\\\\\\\\
+        A 5(b)                                      D 7(b)                                                   H 3(b)                                                               M 15(r)
+    /////// \\\                             /////////// \\\                                                  /// \\\                                   ////////////////////////////// \\\\\\\\\\\\\\\\\\
+- 1(b)      B 3(b)                      - 1(b)          E 5(r)                                           - 1(b)  - 1(b)                            K 7(b)                                            N 7(b)
+            /// \\\                                 /////// \\\                                                                          ///////////// \\\\\\\\\                             /////////// \\\
+        - 1(r)  - 1(r)                          - 1(b)      F 3(b)                                                                   J 3(b)                  L 3(b)                      - 1(b)          O 5(r)
+                                                            /// \\\                                                                  /// \\\                 /// \\\                                 /////// \\\
+                                                        - 1(r)  - 1(r)                                                           - 1(r)  - 1(r)          - 1(r)  - 1(r)                          - 1(b)      P 3(b)
+                                                                                                                                                                                                             /// \\\
+                                                                                                                                                                                                         - 1(r)  - 1(r)

@@ -1,0 +1,92 @@
+Testing combined extra + dirty functionality with cumulative totals
+===================================================================
+
+Inserting nodes:
+  Inserting value 30
+  Inserting value 20
+  Inserting value 40
+  Inserting value 10
+  Inserting value 50
+
+Tree count: 5
+Tree contents (value:total):
+  Node 1: value=10, total=10
+  Node 2: value=20, total=30
+  Node 3: value=30, total=150
+  Node 4: value=40, total=90
+  Node 5: value=50, total=50
+
+Testing removal and total recalculation:
+  Successfully removed value 30 (root)
+
+Tree after removal:
+Tree contents (value:total):
+  Node 1: value=10, total=10
+  Node 2: value=20, total=30
+  Node 3: value=40, total=120
+  Node 4: value=50, total=50
+
+Final tree count: 4
+
+
+Building tree again for leaf deletion demonstration
+====================================================
+
+Inserting nodes for leaf deletion test:
+  Inserting value 50
+  Inserting value 30
+  Inserting value 70
+  Inserting value 20
+  Inserting value 40
+  Inserting value 60
+  Inserting value 80
+
+Tree count: 7
+Tree contents (value:total):
+  Node 1: value=20, total=20
+  Node 2: value=30, total=90
+  Node 3: value=40, total=40
+  Node 4: value=50, total=350
+  Node 5: value=60, total=60
+  Node 6: value=70, total=210
+  Node 7: value=80, total=80
+
+Testing leaf node removals:
+  Successfully removed leaf value 20
+  Tree after removing 20:
+Tree contents (value:total):
+  Node 1: value=30, total=70
+  Node 2: value=40, total=40
+  Node 3: value=50, total=330
+  Node 4: value=60, total=60
+  Node 5: value=70, total=210
+  Node 6: value=80, total=80
+
+  Successfully removed leaf value 40
+  Tree after removing 40:
+Tree contents (value:total):
+  Node 1: value=30, total=30
+  Node 2: value=50, total=290
+  Node 3: value=60, total=60
+  Node 4: value=70, total=210
+  Node 5: value=80, total=80
+
+  Successfully removed leaf value 60
+  Tree after removing 60:
+Tree contents (value:total):
+  Node 1: value=30, total=30
+  Node 2: value=50, total=230
+  Node 3: value=70, total=150
+  Node 4: value=80, total=80
+
+  Successfully removed leaf value 80
+  Tree after removing 80:
+Tree contents (value:total):
+  Node 1: value=30, total=30
+  Node 2: value=50, total=150
+  Node 3: value=70, total=70
+
+
+Final tree count after leaf deletions: 3
+
+Test completed successfully!
