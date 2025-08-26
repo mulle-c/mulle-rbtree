@@ -246,7 +246,6 @@ struct mulle_rbtreeenumerator
 };
 
 
-MULLE_C_NONNULL_FIRST
 static inline struct mulle_rbtreeenumerator
    mulle_rbtree_enumerate( struct mulle_rbtree *a_tree)
 {
@@ -309,7 +308,6 @@ struct mulle_rbtreereverseenumerator
 };
 
 
-MULLE_C_NONNULL_FIRST
 static inline struct mulle_rbtreereverseenumerator
    mulle_rbtree_reverseenumerate( struct mulle_rbtree *a_tree)
 {

@@ -152,8 +152,8 @@ int   _mulle_rbtree_remove( struct mulle_rbtree *a_tree, void *a_key)
    if( ! node)
       return( ENOENT);
 
-   allocator = _mulle_rbtree_get_allocator( a_tree);
    value     = _mulle__rbtree_get_node_value( (struct mulle__rbtree *) a_tree, node);
+   allocator = _mulle_rbtree_get_allocator( a_tree);
    (*a_tree->callback.release)( &a_tree->callback, value, allocator);
    _mulle__rbtree_remove_node( (struct mulle__rbtree *) a_tree, node);
 

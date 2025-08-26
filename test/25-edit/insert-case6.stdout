@@ -1,0 +1,60 @@
+=== Insert Case 6a: Left-Left Configuration ===
+Building tree: U, P, G, N (N < G < P < U ordering)
+
+1. Insert U (becomes black root):
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+U(b)
+
+2. Insert P (red left child of U):
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+  U(b)
+   /
+P(R)
+
+3. Insert G (red left child of P):
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+   P(b)
+   // \\
+G(r)  U(r)
+
+4. Insert N (should trigger case 6a - outer left grandchild):
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+       P(b)
+     //// \\\\
+  G(b)      U(b)
+   /
+N(R)
+
+Expected after Case 6a: Tree rotated and recolored
+
+Tree is valid after insertion!
+
+=== Insert Case 6b: Right-Right Configuration (Mirror) ===
+Building tree: U, P, G, N (U < P < G < N ordering)
+
+1. Insert U (becomes black root):
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+U(b)
+
+2. Insert P (red right child of U):
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+ \
+P(R)
+
+3. Insert G (red right child of P):
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+   P(b)
+   // \\
+U(r)  G(r)
+
+4. Insert N (should trigger case 6b - outer right grandchild):
+Red-Black Tree (r=red, b=black, R=red+dirty, B=black+dirty):
+   P(b)
+   //
+U(b)G(b)
+       \
+      N(R)
+
+Expected after Case 6b: Tree rotated and recolored
+
+Tree is valid after insertion!

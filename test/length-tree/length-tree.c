@@ -485,7 +485,6 @@ char  *length_tree_insert(struct mulle_rbtree *tree, char *text, size_t position
 }
 
 
-
 static char   *print_ascii_tree_value( void *value)
 {
    struct length_info *info = value;
@@ -529,6 +528,7 @@ static void  insert( struct mulle_rbtree *tree, char *s, size_t position)
       abort();
    }
 }
+
 
 
 /* Fuzz test runner without any reference vector/oracle.
