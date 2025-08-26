@@ -103,15 +103,35 @@ static void   add_node( struct mulle__rbtree *tree,
 }
 
 
+static int   validate_mask( uint64_t mask)
+{
+   unsigned int      index;
+   enum node_state   state;
+
+   index = 0;
+   while( mask)
+   {
+      state  = mask & 0x3;
+      mask >>= 2;
+      if( state == NODE_ALSO_NONE)
+         return( 0);
+      if( state == NODE_NONE)
+         continue;
+      index++;
+   }
+   return( index > 0);
+}
+
+
 static int   build_tree_from_mask( struct mulle__rbtree *tree, uint64_t mask)
 {
    struct mulle_rbnode  *nil;
    struct mulle_rbnode  *parent;
    unsigned int         index;
    enum node_state      state;
+   uint64_t             memo;
 
    nil    = _mulle__rbtree_get_nil_node( tree);
-
    index  = 0;
    parent = nil;
 
@@ -142,8 +162,8 @@ static int   build_tree_from_mask( struct mulle__rbtree *tree, uint64_t mask)
 
 int main(void)
 {
-   uint64_t               min_mask = 1ULL << (7 * 2); // 14 bits total for 7 nodes
-   uint64_t               max_mask = 1ULL << (7 + 8 * 2); // 14 bits total for 15 nodes
+   uint64_t               min_mask = 1ULL << ((1 + 2 + 4) * 2);   // 14 bits total for 7 nodes
+   uint64_t               max_mask = 1ULL << ((7 + 8) * 2);       // 30 bits total for 15 nodes
    size_t                 max;
    int                    valid;
    struct mulle__rbtree   proto;
@@ -155,11 +175,15 @@ int main(void)
    struct mulle_rbnode    *nil;
    char                   *name;
    char                   *err;
+   uint64_t               count;
 
-   for( uint64_t mask = 0; mask <= max_mask; mask++)
+   count = 0;
+   for( uint64_t mask = min_mask; mask <= max_mask; mask++)
    {
-      // need a level 3 node
-      if( mask <= min_mask)
+      //// need a level 3 node
+      //if( mask <= min_mask)
+      //   continue;
+      if( ! validate_mask( mask))
          continue;
 
       _mulle__rbtree_init( &proto, NULL);

@@ -140,9 +140,10 @@ static int   build_tree_from_mask( struct mulle__rbtree *tree, uint64_t mask)
 
 
 
-int main(void)
+int main( int argc, char *argv[])
 {
    uint64_t               max_mask = 1ULL << (7 * 2); // 14 bits total for 7 nodes
+   uint64_t               start_mask = 0; // 14 bits total for 7 nodes
    size_t                 max;
    int                    valid;
    struct mulle__rbtree   proto;
@@ -155,7 +156,10 @@ int main(void)
    char                   *name;
    char                   *err;
 
-   for( uint64_t mask = 0; mask <= max_mask; mask++)
+   if( argc > 1)
+      start_mask = max_mask = strtol(argv[1], NULL, 0);
+
+   for( uint64_t mask = start_mask; mask <= max_mask; mask++)
    {
       _mulle__rbtree_init( &proto, NULL);
       if( ! build_tree_from_mask( &proto, mask))

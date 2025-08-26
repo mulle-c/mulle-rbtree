@@ -115,7 +115,7 @@ static inline void   *_mulle_rbnode_get_payload( struct mulle_rbnode *a_node)
 }
 
 // does not retain
-static inline void   *_mulle_rbnode_set_payload( struct mulle_rbnode *a_node, void *payload)
+static inline void   _mulle_rbnode_set_payload( struct mulle_rbnode *a_node, void *payload)
 {
    a_node->payload = payload;
 }
@@ -124,6 +124,13 @@ static inline void   *_mulle_rbnode_set_payload( struct mulle_rbnode *a_node, vo
 static inline void   *_mulle_rbnode_get_extra( struct mulle_rbnode *a_node)
 {
    return( (void *) &a_node->payload);
+}
+
+
+static inline void   *_mulle_rb_get_node_from_extra( void *value)
+{
+   value = (void *) &((void **) value)[ 1];                    // dial past payload
+   return( &((struct mulle_rbnode *) value)[ -1]);    // now get back to node
 }
 
 
@@ -237,6 +244,7 @@ static inline int
 }
 
 
+MULLE_C_NONNULL_FIRST_SECOND
 static inline void   _mulle__rbtree_set_node_color( struct mulle__rbtree *a_tree,
                                                     struct mulle_rbnode *a_node,
                                                     int color)
@@ -248,21 +256,21 @@ static inline void   _mulle__rbtree_set_node_color( struct mulle__rbtree *a_tree
 }
 
 
+MULLE_C_NONNULL_FIRST_SECOND
 static inline void   _mulle__rbtree_set_node_red( struct mulle__rbtree *a_tree,
                                                   struct mulle_rbnode *a_node)
 {
+   // can't set nil to red!
    assert( &a_tree->_nil != a_node);
 
    _mulle_rbnode_set_color( a_node, mulle__rbtree_red);
 }
 
 
+MULLE_C_NONNULL_FIRST_SECOND
 static inline void   _mulle__rbtree_set_node_black( struct mulle__rbtree *a_tree,
                                                     struct mulle_rbnode *a_node)
 {
-   // can do without this assert
-   assert( &a_tree->_nil != a_node);
-
    _mulle_rbnode_set_color( a_node, mulle__rbtree_black);
 }
 
@@ -276,6 +284,7 @@ static inline size_t
 }
 
 
+MULLE_C_NONNULL_FIRST_SECOND
 static inline void   *
    _mulle__rbtree_get_node_value( struct mulle__rbtree *a_tree,
                                   struct mulle_rbnode  *a_node)
@@ -287,6 +296,20 @@ static inline void   *
            ? _mulle_rbnode_get_extra( a_node)
            : _mulle_rbnode_get_payload( a_node));
 }
+
+
+MULLE_C_NONNULL_FIRST_SECOND
+static inline struct mulle_rbnode   *
+   _mulle__rbtree_get_node_from_extra( struct mulle__rbtree *a_tree,
+                                       void  *extra)
+{
+
+   assert( a_tree->_options & mulle_rbtree_option_use_extra);
+
+   // dial to end of payload then back up to node
+   return( &((struct mulle_rbnode *) ((void **) extra + 1))[ -1]);
+}
+
 
 
 
@@ -401,11 +424,11 @@ static inline struct mulle_rbnode   *
                                       struct mulle_rbnode *a_root)
 {
    struct mulle_rbnode   *p;
-   struct mulle_rbnode   *nil;
+   struct mulle_rbnode   *nil_node; // nil not good for objc in header
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
    
-   for( p = a_root; p->_left != nil; p = p->_left);
+   for( p = a_root; p->_left != nil_node; p = p->_left);
    return( p);
 }
 
@@ -416,13 +439,71 @@ static inline struct mulle_rbnode   *
                                        struct mulle_rbnode  *a_root)
 {
    struct mulle_rbnode   *p;
-   struct mulle_rbnode   *nil;
+   struct mulle_rbnode   *nil_node; // nil not good for objc in header
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
 
-   for( p = a_root; p->_right != nil; p = p->_right);
+   for( p = a_root; p->_right != nil_node; p = p->_right);
    return( p);
 }
+
+
+
+// will not return NULL, will return "nil" node
+MULLE_C_NONNULL_FIRST_SECOND
+MULLE_C_NONNULL_RETURN
+static inline struct mulle_rbnode   *
+   _mulle__rbtree_next_node( struct mulle__rbtree *a_tree,
+                             struct mulle_rbnode  *node)
+{
+   struct mulle_rbnode   *nil_node;
+   struct mulle_rbnode   *parent;
+
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
+
+   if( node->_right != nil_node)
+   {
+      // If there's a right child, go to the leftmost node in right subtree
+      return( _mulle__rbtree_find_leftmost_node( a_tree, node->_right));
+   }
+
+   // Otherwise, bubble up until we come from a left child
+   while( (parent = node->_parent) != nil_node && node == parent->_right)
+   {
+      node = parent;
+   }
+
+   return( parent);
+}
+
+
+// will not return NULL, will return "nil" node
+MULLE_C_NONNULL_FIRST_SECOND
+MULLE_C_NONNULL_RETURN
+static inline struct mulle_rbnode   *
+   _mulle__rbtree_previous_node( struct mulle__rbtree *a_tree,
+                                 struct mulle_rbnode  *node)
+{
+   struct mulle_rbnode   *nil_node;
+   struct mulle_rbnode   *parent;
+
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
+
+   if( node->_left != nil_node)
+   {
+      // If there's a left child, go to the rightmost node in left subtree
+      return( _mulle__rbtree_find_rightmost_node( a_tree, node->_left));
+   }
+
+   // Otherwise, bubble up until we come from a left child
+   while( (parent = node->_parent) != nil_node && node == parent->_left)
+   {
+      node = parent;
+   }
+
+   return( parent);
+}
+
 
 
 /* a_key is always the first argument to a_comp. */
@@ -432,18 +513,18 @@ static inline struct mulle_rbnode    *
                                           void *a_key,
                                           int (*a_comp)( void *, void *))
 {
-   int                    r;
-   struct mulle_rbnode    *p;
-   struct mulle_rbnode   *nil;
-   void                   *b_key;
+   int                   r;
+   struct mulle_rbnode   *p;
+   struct mulle_rbnode   *nil_node; // nil not good for objc in header
+   void                  *b_key;
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
 
    // this seems like it would be an easy mistake to make
    assert( ! (a_tree->_options & mulle_rbtree_option_use_extra));
 
    p = a_tree->_root;
-   while( p != nil)
+   while( p != nil_node)
    {
       b_key = _mulle_rbnode_get_payload( p);
       r     = (*a_comp)( a_key, b_key);
@@ -467,13 +548,13 @@ static inline struct mulle_rbnode    *
    int                   r;
    struct mulle_rbnode   *p;
    void                  *b_key;
-   struct mulle_rbnode   *nil;
+   struct mulle_rbnode   *nil_node; // nil not good for objc in header
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
    assert( a_tree->_options & mulle_rbtree_option_use_extra);
 
    p = a_tree->_root;
-   while( p != nil)
+   while( p != nil_node)
    {
       b_key = _mulle_rbnode_get_extra( p);
       r     = (*a_comp)( a_key, b_key);
@@ -503,11 +584,11 @@ struct mulle_rbnode    *
    struct mulle_rbnode   *p;
    struct mulle_rbnode   *n;
    void                  *b_key;
-   struct mulle_rbnode   *nil;
+   struct mulle_rbnode   *nil_node; // nil not good for objc in header
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
    p   = a_tree->_root;
-   while( p != nil)
+   while( p != nil_node)
    {
       b_key = _mulle_rbnode_get_payload( p);
       r     = (*a_comp)( a_key, b_key);
@@ -516,18 +597,18 @@ struct mulle_rbnode    *
 
       if( r < 0)
       {
-         if( p->_left == _mulle__rbtree_get_nil_node( a_tree))
+         if( p->_left == nil_node)
             break;
 
          p = p->_left;
       }
       else
       {
-         if( p->_right == _mulle__rbtree_get_nil_node( a_tree))
+         if( p->_right == nil_node)
          {
             n = p;
             p = p->_parent;
-            while (p != _mulle__rbtree_get_nil_node( a_tree) && n == p->_right)
+            while( p != nil_node && n == p->_right)
             {
                n = p;
                p = p->_parent;
@@ -556,12 +637,12 @@ struct mulle_rbnode    *
    struct mulle_rbnode   *p;
    struct mulle_rbnode   *n;
    void                  *b_key;
-   struct mulle_rbnode   *nil;
+   struct mulle_rbnode   *nil_node; // nil not good for objc in header
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
 
    p = a_tree->_root;
-   while( p != nil)
+   while( p != nil_node)
    {
       b_key = _mulle_rbnode_get_extra( p);
       r     = (*a_comp)( a_key, b_key);
@@ -570,18 +651,18 @@ struct mulle_rbnode    *
 
       if( r < 0)
       {
-         if( p->_left == nil)
+         if( p->_left == nil_node)
             break;
 
          p = p->_left;
       }
       else
       {
-         if( p->_right == nil)
+         if( p->_right == nil_node)
          {
             n = p;
             p = p->_parent;
-            while (p != nil && n == p->_right)
+            while (p != nil_node && n == p->_right)
             {
                n = p;
                p = p->_parent;
@@ -667,12 +748,12 @@ void   _mulle__rbtree_walk( struct mulle__rbtree *a_tree,
                             int (*callback)( struct mulle_rbnode *a_node, void *userinfo),
                             void *userinfo)
 {
-   struct mulle_rbnode  *a_node;
-   struct mulle_rbnode   *nil;
+   struct mulle_rbnode   *a_node;
+   struct mulle_rbnode   *nil_node; // nil not good for objc in header
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
    a_node = _mulle__rbtree_find_leftmost_node( a_tree, _mulle__rbtree_get_root_node( a_tree));
-   while( a_node != nil)
+   while( a_node != nil_node)
    {
       if( ! (*callback)( a_node, userinfo))
          break;
@@ -687,12 +768,12 @@ void   _mulle__rbtree_walk_reverse( struct mulle__rbtree *a_tree,
                                     int (*callback)( struct mulle_rbnode *a_node, void *userinfo),
                                     void *userinfo)
 {
-   struct mulle_rbnode  *a_node;
-   struct mulle_rbnode   *nil;
+   struct mulle_rbnode   *a_node;
+   struct mulle_rbnode   *nil_node;
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
    a_node = _mulle__rbtree_find_rightmost_node( a_tree, _mulle__rbtree_get_root_node( a_tree));
-   while( a_node != nil)
+   while( a_node != nil_node)
    {
       if( ! (*callback)( a_node, userinfo))
          break;
@@ -709,10 +790,10 @@ void   __mulle__rbtree_walk_dirty( struct mulle__rbtree *a_tree,
                                                      void *left,
                                                      void *right))
 {
-   struct mulle_rbnode  *nil;
+   struct mulle_rbnode  *nil_node;
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
-   if( a_node == nil || ! _mulle_rbnode_is_dirty( a_node))
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
+   if( a_node == nil_node || ! _mulle_rbnode_is_dirty( a_node))
       return;
 
    __mulle__rbtree_walk_dirty( a_tree, a_node->_left, callback);
@@ -740,11 +821,11 @@ static inline
 size_t   __mulle__rbtree_walk_count( struct mulle__rbtree *a_tree,
                                      struct mulle_rbnode *a_node)
 {
-   struct mulle_rbnode  *nil;
+   struct mulle_rbnode  *nil_node;
    size_t               count;
 
-   nil = _mulle__rbtree_get_nil_node( a_tree);
-   if( a_node == nil)
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
+   if( a_node == nil_node)
       return( 0);
 
    count = __mulle__rbtree_walk_count( a_tree, a_node->_left)
