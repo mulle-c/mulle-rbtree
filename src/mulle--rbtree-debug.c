@@ -80,8 +80,8 @@ static char *_mulle__rbtree_validate_black_height(struct mulle__rbtree *a_tree,
 
 // Helper function to validate red-black tree properties recursively
 // Returns NULL if the node and its subtrees are valid, otherwise an error message.
-static char *_mulle__rbtree_validate_node(struct mulle__rbtree *a_tree,
-                                          struct mulle_rbnode *node)
+static char   *_mulle__rbtree_validate_node( struct mulle__rbtree *a_tree,
+                                             struct mulle_rbnode *node)
 {
    struct mulle_rbnode *nil;
    char *err;
@@ -111,12 +111,18 @@ static char *_mulle__rbtree_validate_node(struct mulle__rbtree *a_tree,
       return "Parent-child inconsistency: Right child's parent pointer is incorrect";
    }
 
+   if( _mulle_rbnode_is_dirty( node) && ! _mulle_rbnode_is_dirty( node->_parent))
+   {
+      if( _mulle__rbtree_get_root_node( a_tree) != node)
+         return "Dirty flag inconsistency: Parent is not marked dirty but child is";
+   }
+
    // Recursively validate left and right subtrees
-   err = _mulle__rbtree_validate_node(a_tree, node->_left);
+   err = _mulle__rbtree_validate_node( a_tree, node->_left);
    if (err != NULL) {
       return err;
    }
-   err = _mulle__rbtree_validate_node(a_tree, node->_right);
+   err = _mulle__rbtree_validate_node( a_tree, node->_right);
    if (err != NULL) {
       return err;
    }
@@ -192,6 +198,9 @@ _mulle__rbtree_node_dot_fprintf( FILE *fp,
    struct mulle_rbnode *nil;
    unsigned long       left_id;
    unsigned long       right_id;
+   char                *fillstyle;
+   char                *fillcolor;
+   char                *fontcolor;
 
    nil = _mulle__rbtree_get_nil_node( a_tree);
 
@@ -208,32 +217,52 @@ _mulle__rbtree_node_dot_fprintf( FILE *fp,
    else
       fprintf( fp, "%ld", node_id);
 
-   fprintf( fp, "\", style=filled, fontcolor=white, fillcolor=%s];\n",
-          _mulle_rbnode_is_red(node) ? "red" : "black");
+   if( _mulle_rbnode_is_dirty( node))
+      fillcolor = _mulle_rbnode_is_red( node) ? "lightcoral" : "darkgray";
+   else
+      fillcolor = _mulle_rbnode_is_red( node)  ? "red" : "black";
+
+   fontcolor = "white";
+   fillstyle = "filled";
+
+   // in marker mode, we make "boring" unmarked nodes not filled
+   if( a_tree->_options & mulle_rbtree_option_use_marker)
+   {
+      if( ! _mulle_rbnode_is_marked( node))
+      {
+         fillstyle = _mulle_rbnode_is_dirty( node) ? "dashed" : "dotted";
+         fontcolor = fillcolor;
+         fillcolor = "white";
+      }
+   }
+
+    fprintf(fp, "\", style=\"%s,bold\", fillcolor=%s, fontcolor=%s];\n",
+               fillstyle, fillcolor, fontcolor);
+
 
    // Left child
-   if (node->_left != nil)
+   if( node->_left != nil)
    {
-      fprintf( fp, "  \"%ld\" -> \"%ld\";\n", node_id, left_id);
+      fprintf( fp, "  \"%ld\" -> \"%ld\" [label=\" L\"];\n", node_id, left_id);
       _mulle__rbtree_node_dot_fprintf( fp, left_id, node->_left, a_tree, print_value_fn);
    }
    else
    {
       // Show nil leaves for clarity
       fprintf( fp, "  nil_%ld [shape=point];\n", left_id);
-      fprintf( fp, "  \"%ld\" -> nil_%ld;\n", node_id, left_id);
+      fprintf( fp, "  \"%ld\" -> nil_%ld [label=\" L\"];\n", node_id, left_id);
    }
 
    // Right child
    if (node->_right != nil)
    {
-      fprintf( fp, "  \"%ld\" -> \"%ld\";\n", node_id, right_id);
+      fprintf( fp, "  \"%ld\" -> \"%ld\" [label=\" R\"];\n", node_id, right_id);
       _mulle__rbtree_node_dot_fprintf( fp, right_id, node->_right, a_tree, print_value_fn);
    }
    else
    {
       fprintf( fp, "  nil_%ld [shape=point];\n", right_id);
-      fprintf( fp, "  \"%ld\" -> nil_%ld;\n", node_id, right_id);
+      fprintf( fp, "  \"%ld\" -> nil_%ld [label=\" R\"];\n", node_id, right_id);
    }
 }
 
@@ -248,7 +277,7 @@ void  mulle__rbtree_node_dot_fprintf( FILE *fp,
    fp = fp ? fp : stdout;
 
    fprintf( fp, "digraph RBTree {\n");
-   fprintf( fp, "  rankdir=TB;\n");             // Top to Bottom layout
+   fprintf( fp, "  rankdir=LR;\n");             // Top to Bottom layout nicer only for small trees
    fprintf( fp, "  node [shape=circle, fontcolor=white, fontsize=10];\n");
 
    if( a_tree)
@@ -256,6 +285,7 @@ void  mulle__rbtree_node_dot_fprintf( FILE *fp,
 
    fprintf( fp, "}\n");
 }
+
 
 
 
@@ -579,6 +609,7 @@ static void   _print_bottom_up_tree( FILE *fp,
    free( connector_lines);
    free( nodes);
 }
+
 
 void   mulle__rbtree_node_ascii_fprintf( FILE *fp,
                                          struct mulle__rbtree *a_tree,
