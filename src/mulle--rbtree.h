@@ -81,9 +81,10 @@
  */
 enum
 {
-   mulle__rbtree_black = 0,
-   mulle__rbtree_red   = 1,
-   mulle__rbtree_dirty = 0x80
+   mulle__rbtree_black  = 0,
+   mulle__rbtree_red    = 1,
+   mulle__rbtree_marker = 0x40,
+   mulle__rbtree_dirty  = 0x80
 };
 
 
@@ -145,11 +146,29 @@ static inline void   _mulle_rbnode_set_dirty( struct mulle_rbnode *a_node)
    a_node->_color |= mulle__rbtree_dirty;
 }
 
-
 static inline void   _mulle_rbnode_clear_dirty( struct mulle_rbnode *a_node)
 {
    a_node->_color &= ~mulle__rbtree_dirty;
 }
+
+
+static inline int   _mulle_rbnode_is_marked( struct mulle_rbnode *a_node)
+{
+   return( ! ! (a_node->_color & mulle__rbtree_marker));
+}
+
+
+static inline void   _mulle_rbnode_clear_marker( struct mulle_rbnode *a_node)
+{
+   a_node->_color &= ~mulle__rbtree_marker;
+}
+
+
+static inline void   _mulle_rbnode_set_marker( struct mulle_rbnode *a_node)
+{
+   a_node->_color |= mulle__rbtree_marker;
+}
+
 
 
 static inline int   _mulle_rbnode_get_color( struct mulle_rbnode *a_node)
@@ -209,7 +228,8 @@ enum
 {
    mulle_rbtree_option_allow_duplicates = 0x1,
    mulle_rbtree_option_use_extra        = 0x2,
-   mulle_rbtree_option_use_dirty        = 0x4
+   mulle_rbtree_option_use_dirty        = 0x4,
+   mulle_rbtree_option_use_marker       = 0x8
 };
 
 #define MULLE__RBTREE_BASE                \
@@ -275,6 +295,24 @@ static inline void   _mulle__rbtree_set_node_black( struct mulle__rbtree *a_tree
 }
 
 
+MULLE_C_NONNULL_FIRST_SECOND
+static inline void
+   _mulle__rbtree_set_node_marked( struct mulle__rbtree *a_tree,
+                                   struct mulle_rbnode *a_node)
+{
+   if( a_tree->_options & mulle_rbtree_option_use_marker)
+      if( a_node != _mulle__rbtree_get_nil_node( a_tree))
+         _mulle_rbnode_set_marker( a_node);
+}
+
+
+MULLE_C_NONNULL_FIRST
+static inline void
+   _mulle__rbtree_enable_marking( struct mulle__rbtree *a_tree)
+{
+   a_tree->_options |= mulle_rbtree_option_use_marker;
+}
+
 
 MULLE_C_NONNULL_FIRST
 static inline size_t
@@ -309,7 +347,6 @@ static inline struct mulle_rbnode   *
    // dial to end of payload then back up to node
    return( &((struct mulle_rbnode *) ((void **) extra + 1))[ -1]);
 }
-
 
 
 
@@ -400,7 +437,8 @@ static inline int
 //
 MULLE__RBTREE_GLOBAL
 MULLE_C_NONNULL_FIRST
-void   _mulle__rbtree_mark_node_as_dirty( struct mulle__rbtree *a_tree, void *node);
+void   _mulle__rbtree_mark_node_as_dirty( struct mulle__rbtree *a_tree,
+                                          struct mulle_rbnode *node);
 
 
 MULLE_C_NONNULL_FIRST
@@ -447,6 +485,37 @@ static inline struct mulle_rbnode   *
    return( p);
 }
 
+
+
+/*
+ * Find a match if it exists.  Otherwise, find the next greater node, if one
+ * exists.
+ */
+MULLE__RBTREE_GLOBAL
+MULLE_C_NONNULL_FIRST_THIRD
+struct mulle_rbnode    *
+   _mulle__rbtree_find_node( struct mulle__rbtree *a_tree,
+                             void *a_key,
+                             int (*a_comp)( void *, void *));
+
+MULLE__RBTREE_GLOBAL
+MULLE_C_NONNULL_FIRST_THIRD
+struct mulle_rbnode    *
+   _mulle__rbtree_find_node_equal_or_greater( struct mulle__rbtree *a_tree,
+                                              void *a_key,
+                                              int (*a_comp)( void *, void *));
+
+#if 0
+MULLE__RBTREE_GLOBAL
+MULLE_C_NONNULL_FIRST_SECOND
+struct mulle_rbnode    *_mulle__rbtree_next_node( struct mulle__rbtree *a_tree,
+                                                       struct mulle_rbnode *a_node);
+
+MULLE__RBTREE_GLOBAL
+MULLE_C_NONNULL_FIRST_SECOND
+struct mulle_rbnode    *_mulle__rbtree_previous_node( struct mulle__rbtree *a_tree,
+                                                           struct mulle_rbnode  *a_node);
+#endif
 
 
 // will not return NULL, will return "nil" node
@@ -676,34 +745,6 @@ struct mulle_rbnode    *
 }
 
 
-/*
- * Find a match if it exists.  Otherwise, find the next greater node, if one
- * exists.
- */
-MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_FIRST_THIRD
-struct mulle_rbnode    *
-   _mulle__rbtree_find_node( struct mulle__rbtree *a_tree,
-                             void *a_key,
-                             int (*a_comp)( void *, void *));
-
-MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_FIRST_THIRD
-struct mulle_rbnode    *
-   _mulle__rbtree_find_node_equal_or_greater( struct mulle__rbtree *a_tree,
-                                              void *a_key,
-                                              int (*a_comp)( void *, void *));
-
-MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_FIRST_SECOND
-struct mulle_rbnode    *_mulle__rbtree_find_next_node( struct mulle__rbtree *a_tree,
-                                                       struct mulle_rbnode *a_node);
-
-MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_FIRST_SECOND
-struct mulle_rbnode    *_mulle__rbtree_find_previous_node( struct mulle__rbtree *a_tree,
-                                                           struct mulle_rbnode  *a_node);
-
 //
 // returns -1 if node is already in there according to a_comp, otherwise 0.
 // After inserting nodes, you can call __mulle__rbtree_walk_dirty to get
@@ -757,7 +798,7 @@ void   _mulle__rbtree_walk( struct mulle__rbtree *a_tree,
    {
       if( ! (*callback)( a_node, userinfo))
          break;
-      a_node = _mulle__rbtree_find_next_node( a_tree, a_node);
+      a_node = _mulle__rbtree_next_node( a_tree, a_node);
    }
 }
 
@@ -777,7 +818,7 @@ void   _mulle__rbtree_walk_reverse( struct mulle__rbtree *a_tree,
    {
       if( ! (*callback)( a_node, userinfo))
          break;
-      a_node = _mulle__rbtree_find_previous_node( a_tree, a_node);
+      a_node = _mulle__rbtree_previous_node( a_tree, a_node);
    }
 }
 
@@ -791,20 +832,30 @@ void   __mulle__rbtree_walk_dirty( struct mulle__rbtree *a_tree,
                                                      void *right))
 {
    struct mulle_rbnode  *nil_node;
+   void                 *value;
+   void                 *left_value;
+   void                 *right_value;
 
-   nil_node = _mulle__rbtree_get_nil_node( a_tree);
-   if( a_node == nil_node || ! _mulle_rbnode_is_dirty( a_node))
+   if( ! _mulle_rbnode_is_dirty( a_node))
       return;
 
-   __mulle__rbtree_walk_dirty( a_tree, a_node->_left, callback);
-   __mulle__rbtree_walk_dirty( a_tree, a_node->_right, callback);
+   nil_node = _mulle__rbtree_get_nil_node( a_tree);
+   assert( a_node != nil_node);
 
-   (*callback)( _mulle__rbtree_get_node_value( a_tree, a_node),
-                _mulle__rbtree_get_node_value( a_tree, a_node->_left),
-                _mulle__rbtree_get_node_value( a_tree, a_node->_right));
+   if( a_node->_left != nil_node)
+      __mulle__rbtree_walk_dirty( a_tree, a_node->_left, callback);
+   if( a_node->_right != nil_node)
+      __mulle__rbtree_walk_dirty( a_tree, a_node->_right, callback);
+
+   value       = _mulle__rbtree_get_node_value( a_tree, a_node),
+   left_value  = _mulle__rbtree_get_node_value( a_tree, a_node->_left),
+   right_value = _mulle__rbtree_get_node_value( a_tree, a_node->_right);
+
+   (*callback)( value, left_value, right_value);
 
    _mulle_rbnode_clear_dirty( a_node);
 }
+
 
 
 MULLE__RBTREE_GLOBAL

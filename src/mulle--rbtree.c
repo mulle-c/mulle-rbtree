@@ -71,7 +71,6 @@
 // };
 //
 
-
 void   _mulle__rbtree_init_with_options( struct mulle__rbtree *a_tree,
                                          size_t node_extra_size,
                                          unsigned int options,
@@ -124,57 +123,6 @@ struct mulle_rbnode  *_mulle__rbtree_new_node( struct mulle__rbtree *a_tree,
 }
 
 
-
-struct mulle_rbnode   *
-   _mulle__rbtree_find_next_node( struct mulle__rbtree *a_tree,
-                                  struct mulle_rbnode *a_node)
-{
-   struct mulle_rbnode   *p;
-   struct mulle_rbnode   *t;
-   struct mulle_rbnode   *nil_node;
-
-   nil_node = _mulle__rbtree_get_nil_node( a_tree);
-   if( a_node->_right != nil_node)
-      return( _mulle__rbtree_find_leftmost_node( a_tree, a_node->_right));
-   
-   t = a_node;
-   p = a_node->_parent;
-   
-   while( p != nil_node && t == p->_right)
-   {
-      t = p;
-      p = p->_parent;
-   }
-   return( p);
-}
-
-
-struct mulle_rbnode    *
-   _mulle__rbtree_find_previous_node( struct mulle__rbtree *a_tree,
-                                      struct mulle_rbnode *a_node)
-{
-   struct mulle_rbnode   *p;
-   struct mulle_rbnode   *t;
-   struct mulle_rbnode   *nil_node;
-
-   nil_node = _mulle__rbtree_get_nil_node( a_tree);
-
-   if( a_node->_left != nil_node)
-      return( _mulle__rbtree_find_rightmost_node( a_tree, a_node->_left));
-			
-   t = a_node;
-   p = a_node->_parent;
-   
-   while( p != nil_node && t == p->_left)
-   {
-      t = p;
-      p = p->_parent;
-   }
-   return( p);
-}
-
-
-
 MULLE__RBTREE_GLOBAL
 MULLE_C_NONNULL_FIRST_THIRD
 struct mulle_rbnode    *
@@ -199,7 +147,6 @@ struct mulle_rbnode    *
       return( _mulle__rbtree_find_node_with_equal_or_greater_extra( a_tree, a_key, a_comp));
    return( _mulle__rbtree_find_node_with_equal_or_greater_payload( a_tree, a_key, a_comp));
 }
-
 
 
 static inline void  mulle_rb_node_set_left( struct mulle_rbnode *p,
@@ -230,6 +177,33 @@ static inline void  mulle_rb_node_set_right( struct mulle_rbnode *p,
 }
 
 
+#ifndef NDEBUG
+static inline void   _assert_dirty_flag_propagation( struct mulle_rbnode *node,
+                                                     struct mulle__rbtree *a_tree)
+{
+   struct mulle_rbnode   *parent;
+
+   assert( _mulle__rbtree_get_nil_node( a_tree) != node);
+   if( _mulle__rbtree_get_root_node( a_tree) == node)
+      return;
+
+   parent = node->_parent;
+   assert( _mulle_rbnode_is_dirty( parent));
+   _assert_dirty_flag_propagation( parent, a_tree);
+}
+
+
+static inline void   assert_dirty_flag_propagation( struct mulle_rbnode *node,
+                                                    struct mulle__rbtree *a_tree)
+{
+   if( _mulle_rbnode_is_dirty( node))
+      _assert_dirty_flag_propagation( node, a_tree);
+}
+#else
+#define assert_dirty_flag_propagation( node)  do{}while(0)
+#endif
+
+
 static inline void   mulle_rb_node_reparent( struct mulle_rbnode *p,
                                              struct mulle_rbnode *t,
                                              struct mulle__rbtree *a_tree)
@@ -240,6 +214,7 @@ static inline void   mulle_rb_node_reparent( struct mulle_rbnode *p,
 
    // move 't' above 'p'
    t->_parent = p->_parent;
+   _mulle__rbtree_set_node_marked( a_tree,  t);
 
    // If p was the root, then t becomes the new root of the tree.
    // Otherwise, reconnect t into p’s parent — replacing p in the tree.
@@ -247,18 +222,21 @@ static inline void   mulle_rb_node_reparent( struct mulle_rbnode *p,
    if( p->_parent == nil_node)
       a_tree->_root = t;
    else
+   {
       if( p == p->_parent->_right)
          p->_parent->_right = t;
       else
          p->_parent->_left = t;
+      _mulle__rbtree_set_node_marked( a_tree,  p->_parent);
+   }
 }
-
 
 
 //
 // we propagate the dirty flag up
 //
-void   _mulle__rbtree_mark_node_as_dirty( struct mulle__rbtree *a_tree, void *node)
+void   _mulle__rbtree_mark_node_as_dirty( struct mulle__rbtree *a_tree,
+                                          struct mulle_rbnode *node)
 {
    struct mulle_rbnode   *nil_node;
 
@@ -273,6 +251,7 @@ void   _mulle__rbtree_mark_node_as_dirty( struct mulle__rbtree *a_tree, void *no
       node = _mulle_rbnode_get_parent( node);
    }
 }
+
 
 // T as right child of P moves to the top. P becomes left child.
 // Former left child of T becomes right child of P. The number of nodes on
@@ -296,14 +275,18 @@ static void   _mulle__rbtree_left_rotate_node( struct mulle__rbtree *a_tree,
 {
    struct mulle_rbnode   *t;
 
+   _mulle__rbtree_set_node_marked( a_tree,  p);
+
    // t is the node to the right
    t   = p->_right;
+   _mulle__rbtree_set_node_marked( a_tree,  t);
 
    assert( p != _mulle__rbtree_get_nil_node( a_tree));
    assert( t != _mulle__rbtree_get_nil_node( a_tree));
 
    // Move t's left subtree into p's right subtree (we still have t..)
    mulle_rb_node_set_right( p, t->_left, a_tree);
+   _mulle__rbtree_set_node_marked( a_tree,  t->_left);
 
    // move 't' above 'p'
    mulle_rb_node_reparent( p, t, a_tree);
@@ -312,10 +295,16 @@ static void   _mulle__rbtree_left_rotate_node( struct mulle__rbtree *a_tree,
    // t becomes the new parent of p
    t->_left   = p;
    p->_parent = t;
+   _mulle__rbtree_set_node_marked( a_tree,  p->_parent);
 
    // MEMO: need to redo 'p' and then 't' (and propagate up)
    if( a_tree->_options & mulle_rbtree_option_use_dirty)
+   {
       _mulle__rbtree_mark_node_as_dirty( a_tree, p);
+
+      assert_dirty_flag_propagation( p, a_tree);
+      assert_dirty_flag_propagation( t, a_tree);
+   }
 }
 
 
@@ -338,21 +327,411 @@ static void   _mulle__rbtree_right_rotate_node( struct mulle__rbtree *a_tree,
 {
    struct mulle_rbnode   *t;
    
+   _mulle__rbtree_set_node_marked( a_tree,  p);
+
    t   = p->_left;
+   _mulle__rbtree_set_node_marked( a_tree,  t);
 
    assert( p != _mulle__rbtree_get_nil_node( a_tree));
    assert( t != _mulle__rbtree_get_nil_node( a_tree));
 
    mulle_rb_node_set_left( p, t->_right, a_tree);
+   _mulle__rbtree_set_node_marked( a_tree,  t->_right);
    
    mulle_rb_node_reparent( p, t, a_tree);
    
    t->_right  = p;
    p->_parent = t;
+   _mulle__rbtree_set_node_marked( a_tree,  p->_parent);
 
    // MEMO: need to redo 'p' and then 't' (and propagate up)
    if( a_tree->_options & mulle_rbtree_option_use_dirty)
+   {
       _mulle__rbtree_mark_node_as_dirty( a_tree, p);
+
+      assert_dirty_flag_propagation( p, a_tree);
+      assert_dirty_flag_propagation( t, a_tree);
+   }
+}
+
+
+
+
+
+//
+// Fixup differences:
+//
+// | Aspect              | Insert Fixup                   | Delete Fixup                               |
+// | ------------------- | ------------------------------ | ------------------------------------------ |
+// | Triggered by        | Red-red violation              | Black-height violation                     |
+// | Node color involved | Always starts with red node    | Usually starts after removing black node   |
+// | Key violation       | Parent and child both red      | Double-black / missing black height        |
+// | Fixup method        | Recolor and/or 1–2 rotations   | Recolor, 0–3 rotations, upward propagation |
+// | Complexity          | Simpler, localized             | More complex, can propagate up to root     |
+// | Symmetry            | Symmetric for left/right cases | Also symmetric, but more intricate         |
+//
+// this code works with 'x' being the nil_node, because we are free to clobber
+// the parent pointer. It's hacky...
+MULLE__RBTREE_GLOBAL
+MULLE_C_NONNULL_FIRST_SECOND
+void   _mulle__rbtree_black_black_fixup( struct mulle__rbtree *a_tree,
+                                         struct mulle_rbnode *x)
+{
+   struct mulle_rbnode   *w;
+
+   while( x != a_tree->_root && _mulle_rbnode_is_black( x))
+   {
+      if( x == x->_parent->_left)
+      {
+         w = x->_parent->_right;
+
+         if( _mulle_rbnode_is_red( w))
+         {
+            /* sibling red -> recolor + rotate parent left */
+            _mulle_rbnode_set_black( w);
+            _mulle_rbnode_set_red( x->_parent);
+            _mulle__rbtree_left_rotate_node( a_tree, x->_parent);
+            w = x->_parent->_right;
+         }
+
+         if( _mulle_rbnode_is_black( w->_left) &&
+             _mulle_rbnode_is_black( w->_right))
+         {
+            /* sibling and both children black -> recolor sibling, move up */
+            _mulle_rbnode_set_red( w);
+            x = x->_parent;
+         }
+         else
+         {
+            if( _mulle_rbnode_is_black( w->_right))
+            {
+               /* sibling.right black, sibling.left red -> rotate sibling right */
+               _mulle_rbnode_set_black( w->_left);
+               _mulle_rbnode_set_red( w);
+               _mulle__rbtree_right_rotate_node( a_tree, w);
+               w = x->_parent->_right;
+            }
+
+            /* sibling.right is red -> copy parent color to sibling, fix and finish */
+            {
+               int parent_color = _mulle_rbnode_get_color( x->_parent);
+               _mulle_rbnode_set_color( w, parent_color);
+               _mulle_rbnode_set_black( x->_parent);
+               _mulle_rbnode_set_black( w->_right);
+               _mulle__rbtree_left_rotate_node( a_tree, x->_parent);
+               x = a_tree->_root;
+            }
+         }
+      }
+      else
+      {
+         /* mirror: x is right child */
+         w = x->_parent->_left;
+
+         if( _mulle_rbnode_is_red( w))
+         {
+            /* sibling red -> recolor + rotate parent right */
+            _mulle_rbnode_set_black( w);
+            _mulle_rbnode_set_red( x->_parent);
+            _mulle__rbtree_right_rotate_node( a_tree, x->_parent);
+            w = x->_parent->_left;
+         }
+
+         if( _mulle_rbnode_is_black( w->_right) &&
+             _mulle_rbnode_is_black( w->_left))
+         {
+            /* sibling and both children black -> recolor sibling, move up */
+            _mulle_rbnode_set_red( w);
+            x = x->_parent;
+         }
+         else
+         {
+            if( _mulle_rbnode_is_black( w->_left))
+            {
+               /* sibling.left black -> rotate sibling left */
+               _mulle_rbnode_set_black( w->_right);
+               _mulle_rbnode_set_red( w);
+               _mulle__rbtree_left_rotate_node( a_tree, w);
+               w = x->_parent->_left;
+            }
+
+            /* sibling.left is red -> copy parent color to sibling, fix and finish */
+            {
+               int parent_color = _mulle_rbnode_get_color( x->_parent);
+               _mulle_rbnode_set_color( w, parent_color);
+               _mulle_rbnode_set_black( x->_parent);
+               _mulle_rbnode_set_black( w->_left);
+               _mulle__rbtree_right_rotate_node( a_tree, x->_parent);
+               x = a_tree->_root;
+            }
+         }
+      }
+      assert_dirty_flag_propagation( x, a_tree);
+      assert_dirty_flag_propagation( w, a_tree);
+   }
+
+   /* Important: set x black (fixes cases where loop exited because x became red). */
+   _mulle_rbnode_set_black( x);
+
+   /* Also ensure the root is black using the tree-aware setter (keeps your asserts). */
+   _mulle__rbtree_set_node_black( a_tree, a_tree->_root);
+}
+
+
+//
+// Here is a tree where we want to delete 2
+//
+//           10(B)
+//          /     \
+//       5(R)     15(R)
+//      /   \     /   \
+//   2(B)  7(B) 12(B) 17(B)
+//
+// Root (10) is black (B).
+// Its children (5 and 15) are red (R).
+// Their children (2,7,12,17) are black (B).
+//
+// This satisfies:
+//     No two reds in a row,
+//     Same number of black nodes on all root-to-leaf paths (3 blacks),
+//     Root is black.
+//
+// All paths:
+//    10(B) -> 5(R)  -> 2(B)  -> nil_node(B)
+//    10(B) -> 5(R)  -> 7(B)  -> nil_node(B)
+//    10(B) -> 15(R) -> 12(B) -> nil_node(B)
+//    10(B) -> 15(R) -> 17(B) -> nil_node(B)
+//
+// Step 2: Remove node 2(B) → Before fixup
+//           10(B)
+//          /     \
+//       5(R)     15(R)
+//         \      /   \
+//         7(B)  12(B) 17(B)
+//
+// Node 2 (black) removed, replaced with nil_node (black leaf).
+// Path through left side lost a black node → black-height imbalance.
+//
+// All paths:
+//    10(B) -> 5(R) -> nil_node(B)             → only 2 black nodes
+//    10(B) -> 5(R) -> 7(B) -> nil_node(B)
+//    10(B) -> 15(R) -> 12(B) -> nil_node(B)
+//    10(B) -> 15(R) -> 17(B) -> nil_node(B)
+//
+// We recolor:
+//           10(B)
+//          /     \
+//       5(B)     15(R)
+//         \      /   \
+//        7(R)  12(B) 17(B)
+//
+// All paths:
+//    10(B) → 5(B)
+//    10(B) → 5(B) → 7(R)
+//    10(B) → 15(R) → 12(B)
+//    10(B) → 15(R) → 17(B)
+//
+// -------------
+//
+// Here is a tree where we want to delete node 5
+//
+//           10(B)
+//          /     \
+//       5(R)     15(R)
+//      /   \     /   \
+//   2(B)  7(B) 12(B) 17(B)
+//
+//
+//           10(B)
+//          /     \
+//       7(R)     15(R)
+//      /         /   \
+//   2(B)      12(B) 17(B)
+//
+//
+//           10(B)
+//          /     \
+//       7(B)     15(R)
+//      /         /   \
+//   2(R)      12(B) 17(B)
+//
+MULLE__RBTREE_GLOBAL
+MULLE_C_NONNULL_FIRST_SECOND
+void _mulle__rbtree_remove_node(struct mulle__rbtree *a_tree,
+                                struct mulle_rbnode *a_node)
+{
+   int                   fixup;      // Flag to check if we need to fix the tree's balance after removal
+   struct mulle_rbnode   *x, *y;     // Temporary pointers: y is the node we'll actually remove, x is what replaces it
+   struct mulle_rbnode   *nil_node;  // A special "empty" node that acts like a leaf (end of branch)
+
+   // Get the special empty node used in this tree
+   nil_node = _mulle__rbtree_get_nil_node(a_tree);
+
+   // Make sure we're not trying to remove the empty node itself
+   assert( a_node != nil_node);
+
+   _mulle__rbtree_set_node_marked( a_tree,  a_node);
+   // Save the original children of the node we're deleting, before we change anything
+   struct mulle_rbnode *orig_left  = a_node->_left;
+   struct mulle_rbnode *orig_right = a_node->_right;
+
+   _mulle__rbtree_set_node_marked( a_tree, orig_left);
+   _mulle__rbtree_set_node_marked( a_tree, orig_right);
+
+   // Decide which node to actually remove:
+   // If the node has 0 or 1 real child, we can remove it directly.
+   // Otherwise, find the next node in sorted order (the "successor") to swap with it.
+   // The successor is always easy to remove because it has at most one child.
+   // (It's the leftmost leaf on the right branch)
+   //
+   // Example: Deleting a_node            Becomes: y (successor) takes its place
+   //          /    \                              /      \
+   //        ...   ...                           ...      ...
+   //
+   if( a_node->_left == nil_node || a_node->_right == nil_node)
+      y = a_node;
+   else
+   {
+      y = _mulle__rbtree_next_node( a_tree, a_node);
+      _mulle__rbtree_set_node_marked( a_tree,  y);
+   }
+
+   // x is the child of y (or the empty node if y has no children).
+   // x will move up to take y's spot after removal.
+   //
+   // Example: y with one child          After: x moves up
+   //          / \                              / \
+   //        x   empty                       empty   empty
+   //
+   if( y->_left != nil_node)
+      x = y->_left;
+   else
+      x = y->_right;
+
+   _mulle__rbtree_set_node_marked( a_tree,  x);
+
+   // Connect x directly to y's parent, effectively cutting y out of the tree.
+   //
+   // Example: Parent of y               After removal:
+   //          /      \                         /      \
+   //         y      ...                       x      ...
+   //
+   // Note: Even if x is the empty node, updating its parent is okay and sometimes needed for fixes.
+   x->_parent = y->_parent;
+   _mulle__rbtree_set_node_marked( a_tree,  x->_parent);
+
+   if( y->_parent == nil_node)
+   {
+      a_tree->_root = x;  // If y was the root, now x is the new root
+   }
+   else
+   {
+      // Update the parent's pointer to point to x instead of y
+      if( y == y->_parent->_left)
+         y->_parent->_left = x;
+      else
+         y->_parent->_right = x;
+   }
+   _mulle__rbtree_set_node_marked( a_tree,  y->_parent);
+
+   // Check if y was black (a color in red-black trees). If so, removal might unbalance the tree,
+   // and we'll need to fix it later.
+   fixup = _mulle_rbnode_is_black( y);
+
+   // If we found a successor (y) that's different from the original node,
+   // swap y into the original node's position in the tree.
+   // y takes over the original node's children and color.
+   //
+   // Example: Original a_node           Becomes: y in its place
+   //          /    \                           / \
+   //        L       R                        L   R
+   //
+   if( y != a_node)
+   {
+      y->_parent = a_node->_parent;  // y gets the original parent's pointer
+      y->_left   = orig_left;        // y adopts the original left child
+
+      // Handle the right child carefully
+      if( y != orig_right)
+      {
+         y->_right = orig_right;  // Adopt the original right child
+      }
+      else
+      {
+         // If y was already the right child, it keeps its own right subtree
+         // (no need to change y->_right)
+         x->_parent = y;  // Special fix: Ensure x points to the new y position
+         _mulle__rbtree_set_node_marked( a_tree,  x->_parent);
+      }
+
+      // Copy the original node's color to y
+      _mulle__rbtree_set_node_color(a_tree, y, _mulle_rbnode_get_color(a_node));
+
+      // Update the parent's pointer to now point to y
+      if( y->_parent != nil_node)
+      {
+         if( y->_parent->_left == a_node)
+            y->_parent->_left = y;
+         else
+            y->_parent->_right = y;
+         _mulle__rbtree_set_node_marked( a_tree,  y->_parent);
+      }
+      else
+         a_tree->_root = y;  // If original was root, y is now root
+
+      // Update the children's parent pointers to point back to y
+      // (Harmless even if they're empty nodes)
+      y->_right->_parent = y;
+      y->_left->_parent  = y;
+
+      _mulle__rbtree_set_node_marked( a_tree, y->_right);
+      _mulle__rbtree_set_node_marked( a_tree, y->_left);
+   }
+
+   // If the tree uses "dirty" flags for tracking changes (like for recalculating sizes),
+   // mark the affected parts as needing update.
+   // CHATGPT fix...
+   if( a_tree->_options & mulle_rbtree_option_use_dirty)
+   {
+      // The original parent of a_node saw a child change if a_node wasn't root.
+      if( a_node->_parent != nil_node)
+         _mulle__rbtree_mark_node_as_dirty( a_tree, a_node->_parent);
+
+      // If we swapped in successor y, y's own parent also lost a child (y -> x),
+      // and must be marked dirty even when x == nil_node.
+      if( y != a_node && y->_parent != nil_node)
+         _mulle__rbtree_mark_node_as_dirty( a_tree, y->_parent);
+
+      // Mark y (now carrying a_node's children) so its new subtree gets recomputed.
+      if( y != a_node && y != nil_node)
+         _mulle__rbtree_mark_node_as_dirty( a_tree, y);
+
+      // If x is a real node, mark it too to propagate up that side.
+      if( x != nil_node)
+         _mulle__rbtree_mark_node_as_dirty( a_tree, x);
+   }
+
+
+   // Actually free the memory of the original node we wanted to delete
+   _mulle__rbtree_free_node( a_tree, a_node);
+
+   // If we removed a black node, the tree might be unbalanced now.
+   // Red-black trees require the same number of black nodes on every path from root to leaf.
+   //
+   // Simple cases:
+   // 1. Removed a red node? No problem, tree is still balanced.
+   // 2. Removed a black node? This creates a "missing black" on that path, which we need to fix.
+   //
+   // The fix involves recoloring nodes and rotating branches to spread out the colors evenly.
+   // x tracks where the "missing black" is, and we adjust around it.
+   if( fixup)
+   {
+      _mulle__rbtree_black_black_fixup( a_tree, x);
+   }
+
+   assert_dirty_flag_propagation( x, a_tree);
+   assert_dirty_flag_propagation( orig_left, a_tree);
+   assert_dirty_flag_propagation( orig_right, a_tree);
 }
 
 
@@ -474,125 +853,6 @@ void   _mulle__rbtree_red_red_fixup( struct mulle__rbtree *a_tree,
 }
 
 
-
-//
-// Fixup differences:
-//
-// | Aspect              | Insert Fixup                   | Delete Fixup                               |
-// | ------------------- | ------------------------------ | ------------------------------------------ |
-// | Triggered by        | Red-red violation              | Black-height violation                     |
-// | Node color involved | Always starts with red node    | Usually starts after removing black node   |
-// | Key violation       | Parent and child both red      | Double-black / missing black height        |
-// | Fixup method        | Recolor and/or 1–2 rotations   | Recolor, 0–3 rotations, upward propagation |
-// | Complexity          | Simpler, localized             | More complex, can propagate up to root     |
-// | Symmetry            | Symmetric for left/right cases | Also symmetric, but more intricate         |
-//
-// this code works with 'x' being the nil_node, because we are free to clobber
-// the parent pointer. It's hacky...
-MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_FIRST_SECOND
-void   _mulle__rbtree_black_black_fixup( struct mulle__rbtree *a_tree,
-                                         struct mulle_rbnode *x)
-{
-   struct mulle_rbnode   *w;
-
-   while( x != a_tree->_root && _mulle_rbnode_is_black( x))
-   {
-      if( x == x->_parent->_left)
-      {
-         w = x->_parent->_right;
-
-         if( _mulle_rbnode_is_red( w))
-         {
-            /* sibling red -> recolor + rotate parent left */
-            _mulle_rbnode_set_black( w );
-            _mulle_rbnode_set_red( x->_parent );
-            _mulle__rbtree_left_rotate_node( a_tree, x->_parent );
-            w = x->_parent->_right;
-         }
-
-         if( _mulle_rbnode_is_black( w->_left) &&
-             _mulle_rbnode_is_black( w->_right))
-         {
-            /* sibling and both children black -> recolor sibling, move up */
-            _mulle_rbnode_set_red( w );
-            x = x->_parent;
-         }
-         else
-         {
-            if( _mulle_rbnode_is_black( w->_right))
-            {
-               /* sibling.right black, sibling.left red -> rotate sibling right */
-               _mulle_rbnode_set_black( w->_left );
-               _mulle_rbnode_set_red( w );
-               _mulle__rbtree_right_rotate_node( a_tree, w );
-               w = x->_parent->_right;
-            }
-
-            /* sibling.right is red -> copy parent color to sibling, fix and finish */
-            {
-               int parent_color = _mulle_rbnode_get_color( x->_parent );
-               _mulle_rbnode_set_color( w, parent_color );
-               _mulle_rbnode_set_black( x->_parent );
-               _mulle_rbnode_set_black( w->_right );
-               _mulle__rbtree_left_rotate_node( a_tree, x->_parent );
-               x = a_tree->_root;
-            }
-         }
-      }
-      else
-      {
-         /* mirror: x is right child */
-         w = x->_parent->_left;
-
-         if( _mulle_rbnode_is_red( w))
-         {
-            /* sibling red -> recolor + rotate parent right */
-            _mulle_rbnode_set_black( w );
-            _mulle_rbnode_set_red( x->_parent );
-            _mulle__rbtree_right_rotate_node( a_tree, x->_parent );
-            w = x->_parent->_left;
-         }
-
-         if( _mulle_rbnode_is_black( w->_right) &&
-             _mulle_rbnode_is_black( w->_left))
-         {
-            /* sibling and both children black -> recolor sibling, move up */
-            _mulle_rbnode_set_red( w );
-            x = x->_parent;
-         }
-         else
-         {
-            if( _mulle_rbnode_is_black( w->_left))
-            {
-               /* sibling.left black -> rotate sibling left */
-               _mulle_rbnode_set_black( w->_right );
-               _mulle_rbnode_set_red( w );
-               _mulle__rbtree_left_rotate_node( a_tree, w );
-               w = x->_parent->_left;
-            }
-
-            /* sibling.left is red -> copy parent color to sibling, fix and finish */
-            {
-               int parent_color = _mulle_rbnode_get_color( x->_parent );
-               _mulle_rbnode_set_color( w, parent_color );
-               _mulle_rbnode_set_black( x->_parent );
-               _mulle_rbnode_set_black( w->_left );
-               _mulle__rbtree_right_rotate_node( a_tree, x->_parent );
-               x = a_tree->_root;
-            }
-         }
-      }
-   }
-
-   /* Important: set x black (fixes cases where loop exited because x became red). */
-   _mulle_rbnode_set_black( x );
-
-   /* Also ensure the root is black using the tree-aware setter (keeps your asserts). */
-   _mulle__rbtree_set_node_black( a_tree, a_tree->_root );
-}
-
-
 static void   _mulle__rbtree_attach_node( struct mulle__rbtree *a_tree,
                                          struct mulle_rbnode *a_node,
                                          struct mulle_rbnode *parent,
@@ -706,7 +966,6 @@ void   _mulle__rbtree_insert_node_before_node( struct mulle__rbtree *a_tree,
    struct mulle_rbnode  *y;
    struct mulle_rbnode  *nil_node;
 
-
    nil_node = _mulle__rbtree_get_nil_node( a_tree);
 
    assert( a_node != nil_node);
@@ -768,313 +1027,31 @@ void  _mulle__rbtree_insert_node_after_node( struct mulle__rbtree *a_tree,
 
 
 
-//
-// Here is a tree where we want to delete 2
-//
-//           10(B)
-//          /     \
-//       5(R)     15(R)
-//      /   \     /   \
-//   2(B)  7(B) 12(B) 17(B)
-//
-// Root (10) is black (B).
-// Its children (5 and 15) are red (R).
-// Their children (2,7,12,17) are black (B).
-//
-// This satisfies:
-//     No two reds in a row,
-//     Same number of black nodes on all root-to-leaf paths (3 blacks),
-//     Root is black.
-//
-// All paths:
-//    10(B) -> 5(R)  -> 2(B)  -> nil_node(B)
-//    10(B) -> 5(R)  -> 7(B)  -> nil_node(B)
-//    10(B) -> 15(R) -> 12(B) -> nil_node(B)
-//    10(B) -> 15(R) -> 17(B) -> nil_node(B)
-//
-// Step 2: Remove node 2(B) → Before fixup
-//           10(B)
-//          /     \
-//       5(R)     15(R)
-//         \      /   \
-//         7(B)  12(B) 17(B)
-//
-// Node 2 (black) removed, replaced with nil_node (black leaf).
-// Path through left side lost a black node → black-height imbalance.
-//
-// All paths:
-//    10(B) -> 5(R) -> nil_node(B)             → only 2 black nodes
-//    10(B) -> 5(R) -> 7(B) -> nil_node(B)
-//    10(B) -> 15(R) -> 12(B) -> nil_node(B)
-//    10(B) -> 15(R) -> 17(B) -> nil_node(B)
-//
-// We recolor:
-//           10(B)
-//          /     \
-//       5(B)     15(R)
-//         \      /   \
-//        7(R)  12(B) 17(B)
-//
-// All paths:
-//    10(B) → 5(B)
-//    10(B) → 5(B) → 7(R)
-//    10(B) → 15(R) → 12(B)
-//    10(B) → 15(R) → 17(B)
-//
-// -------------
-//
-// Here is a tree where we want to delete node 5
-//
-//           10(B)
-//          /     \
-//       5(R)     15(R)
-//      /   \     /   \
-//   2(B)  7(B) 12(B) 17(B)
-//
-//
-//           10(B)
-//          /     \
-//       7(R)     15(R)
-//      /         /   \
-//   2(B)      12(B) 17(B)
-//
-//
-//           10(B)
-//          /     \
-//       7(B)     15(R)
-//      /         /   \
-//   2(R)      12(B) 17(B)
-//
-MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_FIRST_SECOND
-#if 0
-void
-_mulle__rbtree_remove_node( struct mulle__rbtree *a_tree,
-                            struct mulle_rbnode *z)
+
+#ifndef NDEBUG
+static void   __mulle__rbtree_assert_clean( struct mulle__rbtree *a_tree,
+                                            struct mulle_rbnode *a_node)
 {
-   struct mulle_rbnode *y;    /* node actually removed or moved */
-   struct mulle_rbnode *x;    /* child that replaces y */
-   struct mulle_rbnode *nil_node;
-   int                 y_original_color;
+   struct mulle_rbnode  *nil_node;
 
    nil_node = _mulle__rbtree_get_nil_node( a_tree);
+   if( a_node == nil_node)
+      return;
 
-   /* Choose y: either z (if it has <=1 child) or successor (min in z->right) */
-   if( z->_left == nil_node || z->_right == nil_node)
-   {
-      y = z;
-   }
-   else
-   {
-      y = z->_right;
-      while( y->_left != nil_node)
-         y = y->_left;
-   }
+   __mulle__rbtree_assert_clean( a_tree, a_node->_left);
+   __mulle__rbtree_assert_clean( a_tree, a_node->_right);
 
-   y_original_color = _mulle_rbnode_get_color( y );
-
-   /* x is y's only child (or nil) */
-   if( y->_left != nil_node)
-      x = y->_left;
-   else
-      x = y->_right;
-
-   /* Splice out y: replace y with x */
-   x->_parent = y->_parent;
-   if( y->_parent == nil_node)
-   {
-      a_tree->_root = x;
-   }
-   else if( y == y->_parent->_left)
-   {
-      y->_parent->_left = x;
-   }
-   else
-   {
-      y->_parent->_right = x;
-   }
-
-   /* If y != z, move y into z's place (transplant) */
-   if( y != z)
-   {
-      /* hook y into z's parent */
-      y->_parent = z->_parent;
-      if( z->_parent == nil_node)
-         a_tree->_root = y;
-      else if( z == z->_parent->_left)
-         z->_parent->_left = y;
-      else
-         z->_parent->_right = y;
-
-      /* adopt z's left subtree */
-      y->_left = z->_left;
-      y->_left->_parent = y;
-
-      /* adopt z's right subtree */
-      y->_right = z->_right;
-      y->_right->_parent = y;
-
-      /* copy z's color into y (exact bit) */
-      _mulle_rbnode_set_color( y, _mulle_rbnode_get_color( z ) );
-   }
-
-   /* If the originally removed node was black, we must fix double-black */
-   if( y_original_color == mulle__rbtree_black)
-      _mulle__rbtree_black_black_fixup( a_tree, x );
-
-   /* caller must reclaim freed node (y if y==z then z was removed) or mark dirty */
+   assert( ! _mulle_rbnode_is_dirty( a_node));
 }
 
-#else
 
-void _mulle__rbtree_remove_node(struct mulle__rbtree *a_tree,
-                                struct mulle_rbnode *a_node)
+void   _mulle__rbtree_assert_clean( struct mulle__rbtree *a_tree)
 {
-   int                   fixup;      // Flag to check if we need to fix the tree's balance after removal
-   struct mulle_rbnode   *x, *y;     // Temporary pointers: y is the node we'll actually remove, x is what replaces it
-   struct mulle_rbnode   *nil_node;  // A special "empty" node that acts like a leaf (end of branch)
-
-   // Get the special empty node used in this tree
-   nil_node = _mulle__rbtree_get_nil_node(a_tree);
-
-   // Make sure we're not trying to remove the empty node itself
-   assert( a_node != nil_node);
-
-   // Save the original children of the node we're deleting, before we change anything
-   struct mulle_rbnode *orig_left  = a_node->_left;
-   struct mulle_rbnode *orig_right = a_node->_right;
-
-   // Decide which node to actually remove:
-   // If the node has 0 or 1 real child, we can remove it directly.
-   // Otherwise, find the next node in sorted order (the "successor") to swap with it.
-   // The successor is always easy to remove because it has at most one child.
-   // (It's the leftmost leaf on the right branch)
-   //
-   // Example: Deleting a_node            Becomes: y (successor) takes its place
-   //          /    \                              /      \
-   //        ...   ...                           ...      ...
-   //
-   if( a_node->_left == nil_node || a_node->_right == nil_node)
-      y = a_node;
-   else
-      y = _mulle__rbtree_find_next_node(a_tree, a_node);
-
-   // x is the child of y (or the empty node if y has no children).
-   // x will move up to take y's spot after removal.
-   //
-   // Example: y with one child          After: x moves up
-   //          / \                              / \
-   //        x   empty                       empty   empty
-   //
-   if( y->_left != nil_node)
-      x = y->_left;
-   else
-      x = y->_right;
-
-   // Connect x directly to y's parent, effectively cutting y out of the tree.
-   //
-   // Example: Parent of y               After removal:
-   //          /      \                         /      \
-   //         y      ...                       x      ...
-   //
-   // Note: Even if x is the empty node, updating its parent is okay and sometimes needed for fixes.
-   x->_parent = y->_parent;
-
-   if( y->_parent == nil_node)
-      a_tree->_root = x;  // If y was the root, now x is the new root
-   else
-   {
-      // Update the parent's pointer to point to x instead of y
-      if( y == y->_parent->_left)
-         y->_parent->_left = x;
-      else
-         y->_parent->_right = x;
-   }
-
-   // Check if y was black (a color in red-black trees). If so, removal might unbalance the tree,
-   // and we'll need to fix it later.
-   fixup = _mulle_rbnode_is_black( y);
-
-   // If we found a successor (y) that's different from the original node,
-   // swap y into the original node's position in the tree.
-   // y takes over the original node's children and color.
-   //
-   // Example: Original a_node           Becomes: y in its place
-   //          /    \                           / \
-   //        L       R                        L   R
-   //
-   if( y != a_node)
-   {
-      y->_parent = a_node->_parent;  // y gets the original parent's pointer
-      y->_left   = orig_left;        // y adopts the original left child
-
-      // Handle the right child carefully
-      if( y != orig_right)
-      {
-         y->_right = orig_right;  // Adopt the original right child
-      }
-      else
-      {
-         // If y was already the right child, it keeps its own right subtree
-         // (no need to change y->_right)
-         x->_parent = y;  // Special fix: Ensure x points to the new y position
-      }
-
-      // Copy the original node's color to y
-      _mulle__rbtree_set_node_color(a_tree, y, _mulle_rbnode_get_color(a_node));
-
-      // Update the parent's pointer to now point to y
-      if( y->_parent != nil_node)
-      {
-         if( y->_parent->_left == a_node)
-            y->_parent->_left = y;
-         else
-            y->_parent->_right = y;
-      }
-      else
-         a_tree->_root = y;  // If original was root, y is now root
-
-      // Update the children's parent pointers to point back to y
-      // (Harmless even if they're empty nodes)
-      y->_right->_parent = y;
-      y->_left->_parent  = y;
-   }
-
-   // If the tree uses "dirty" flags for tracking changes (like for recalculating sizes),
-   // mark the affected parts as needing update.
-   if( a_tree->_options & mulle_rbtree_option_use_dirty)
-   {
-      // Mark the original parent's branch as changed
-      if( a_node->_parent != nil_node)
-         _mulle__rbtree_mark_node_as_dirty( a_tree, a_node->_parent);
-
-      // If we swapped in y, mark it too
-      if( y != a_node && y != nil_node)
-         _mulle__rbtree_mark_node_as_dirty( a_tree, y);
-
-      // Mark the replacement x if it's real
-      if( x != nil_node)
-         _mulle__rbtree_mark_node_as_dirty(a_tree, x);
-   }
-
-   // Actually free the memory of the original node we wanted to delete
-   _mulle__rbtree_free_node( a_tree, a_node);
-
-   // If we removed a black node, the tree might be unbalanced now.
-   // Red-black trees require the same number of black nodes on every path from root to leaf.
-   //
-   // Simple cases:
-   // 1. Removed a red node? No problem, tree is still balanced.
-   // 2. Removed a black node? This creates a "missing black" on that path, which we need to fix.
-   //
-   // The fix involves recoloring nodes and rotating branches to spread out the colors evenly.
-   // x tracks where the "missing black" is, and we adjust around it.
-   if( fixup)
-   {
-      _mulle__rbtree_black_black_fixup(a_tree, x);
-   }
+   __mulle__rbtree_assert_clean( a_tree,
+                                 _mulle__rbtree_get_root_node( a_tree));
 }
 #endif
+
 
 void   _mulle__rbtree_walk_dirty( struct mulle__rbtree *a_tree,
                                   void (*callback)( void *node,
@@ -1085,6 +1062,10 @@ void   _mulle__rbtree_walk_dirty( struct mulle__rbtree *a_tree,
 
    root = _mulle__rbtree_get_root_node( a_tree);
    __mulle__rbtree_walk_dirty( a_tree, root, callback);
+
+#ifndef NDEBUG
+   _mulle__rbtree_assert_clean( a_tree);
+#endif
 }
 
 

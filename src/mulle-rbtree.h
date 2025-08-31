@@ -160,6 +160,24 @@ static inline int
 }
 
 
+
+MULLE__RBTREE_GLOBAL
+MULLE_C_NONNULL_FIRST_SECOND
+void   _mulle_rbtree_remove_node( struct mulle_rbtree *a_tree,
+                                  struct mulle_rbnode *node);
+
+
+static inline void
+   mulle_rbtree_remove_node( struct mulle_rbtree *a_tree,
+                             struct mulle_rbnode *node)
+{
+   if( ! a_tree)
+      return;
+   return( _mulle_rbtree_remove_node( a_tree, node));
+}
+
+
+
 // return 0 on succesful removal
 MULLE__RBTREE_GLOBAL
 MULLE_C_NONNULL_FIRST
@@ -231,7 +249,7 @@ void   mulle_rbtree_walk( struct mulle_rbtree *a_tree,
       value = _mulle__rbtree_get_node_value( (struct mulle__rbtree *) a_tree, a_node);
       if( ! (*callback)( value, userinfo))
          break;
-      a_node = _mulle__rbtree_find_next_node( a__tree, a_node);
+      a_node = _mulle__rbtree_next_node( a__tree, a_node);
    }
 }
 
@@ -271,7 +289,7 @@ static inline int
       return( 0);
    if( item)
       *item = _mulle__rbtree_get_node_value( (struct mulle__rbtree *) rover->_tree, rover->_node);
-   rover->_node = _mulle__rbtree_find_next_node( rover->_tree, rover->_node);
+   rover->_node = _mulle__rbtree_next_node( rover->_tree, rover->_node);
    return( 1);
 }
 
@@ -333,7 +351,7 @@ static inline int
       return( 0);
    if( item)
       *item = _mulle__rbtree_get_node_value( (struct mulle__rbtree *) rover->_tree, rover->_node);
-   rover->_node = _mulle__rbtree_find_previous_node( rover->_tree, rover->_node);
+   rover->_node = _mulle__rbtree_previous_node( rover->_tree, rover->_node);
    return( 1);
 }
 
