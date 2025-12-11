@@ -1,1 +1,1 @@
-mulle-rbtree;${MULLE__RBTREE_NODETYPE:-tar};;F1CC5EC3-83A7-4C1B-80C8-CA92D4A78E4C;${MULLE__RBTREE_URL:-https://github.com/mulle-nat/mulle-rbtree/archive/${MULLE_TAG}.tar.gz};${MULLE__RBTREE_BRANCH};${MULLE__RBTREE_TAG:-latest};;
+mulle-rbtree;${MULLE__RBTREE_NODETYPE:-tar};;DC8772DB-8CA0-4201-87C9-254391E9E345;${MULLE__RBTREE_URL:-https://github.com/nat/mulle-rbtree/archive/${MULLE_TAG}.tar.gz};${MULLE__RBTREE_BRANCH};${MULLE__RBTREE_TAG:-latest};;

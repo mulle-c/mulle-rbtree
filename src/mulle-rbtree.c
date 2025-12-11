@@ -43,11 +43,12 @@ static void   nop_dirty( void *a, void *b, void *c)
 }
 
 
-MULLE__RBTREE_GLOBAL
 void   _mulle_rbtree_init_with_config( struct mulle_rbtree *a_tree,
                                        struct mulle_rbtree_config *config,
                                        struct mulle_allocator *allocator)
 {
+   assert( a_tree);
+
    memset( a_tree, 0, sizeof( *a_tree));
 
    assert( config->comparison);
@@ -90,6 +91,7 @@ void   _mulle_rbtree_done( struct mulle_rbtree *a_tree)
    struct mulle_rbnode      *nil_node;
    struct mulle__rbtree     *rb__tree = (struct mulle__rbtree *) a_tree;
 
+   assert( a_tree);
    
    if( _mulle_container_valuecallback_releases( &a_tree->callback))
    {
@@ -118,6 +120,8 @@ int   _mulle_rbtree_add( struct mulle_rbtree *a_tree, void *value)
    struct mulle_allocator   *allocator;
    int                      rval;
    struct mulle__rbtree     *rb__tree = (struct mulle__rbtree *) a_tree;
+
+   assert( a_tree);
 
    allocator = _mulle_rbtree_get_allocator( a_tree);
    // need payload for comparison before insertion, don't change it
@@ -150,6 +154,8 @@ void   _mulle_rbtree_remove_node( struct mulle_rbtree *a_tree,
    struct mulle_allocator   *allocator;
    void                     *value;
    struct mulle__rbtree     *rb__tree = (struct mulle__rbtree *) a_tree;
+
+   assert( a_tree);
 
    value     = _mulle__rbtree_get_node_value( rb__tree, node);
    allocator = _mulle_rbtree_get_allocator( a_tree);

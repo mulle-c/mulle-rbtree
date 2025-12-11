@@ -200,7 +200,7 @@ static inline void   assert_dirty_flag_propagation( struct mulle_rbnode *node,
       _assert_dirty_flag_propagation( node, a_tree);
 }
 #else
-#define assert_dirty_flag_propagation( node)  do{}while(0)
+#define assert_dirty_flag_propagation( node, a_tree)  do{}while(0)
 #endif
 
 
@@ -574,6 +574,7 @@ void _mulle__rbtree_remove_node(struct mulle__rbtree *a_tree,
    // Save the original children of the node we're deleting, before we change anything
    struct mulle_rbnode *orig_left  = a_node->_left;
    struct mulle_rbnode *orig_right = a_node->_right;
+   struct mulle_rbnode *y_original_parent = nil_node;  // default to nil_node
 
    _mulle__rbtree_set_node_marked( a_tree, orig_left);
    _mulle__rbtree_set_node_marked( a_tree, orig_right);
@@ -594,6 +595,7 @@ void _mulle__rbtree_remove_node(struct mulle__rbtree *a_tree,
    {
       y = _mulle__rbtree_next_node( a_tree, a_node);
       _mulle__rbtree_set_node_marked( a_tree,  y);
+      y_original_parent = y->_parent;  // capture here before any changes
    }
 
    // x is the child of y (or the empty node if y has no children).
@@ -690,7 +692,8 @@ void _mulle__rbtree_remove_node(struct mulle__rbtree *a_tree,
 
    // If the tree uses "dirty" flags for tracking changes (like for recalculating sizes),
    // mark the affected parts as needing update.
-   // CHATGPT fix...
+
+#ifdef USE_CHATGPT_FIX
    if( a_tree->_options & mulle_rbtree_option_use_dirty)
    {
       // The original parent of a_node saw a child change if a_node wasn't root.
@@ -710,7 +713,25 @@ void _mulle__rbtree_remove_node(struct mulle__rbtree *a_tree,
       if( x != nil_node)
          _mulle__rbtree_mark_node_as_dirty( a_tree, x);
    }
+#else
+   if( a_tree->_options & mulle_rbtree_option_use_dirty)
+   {
+      // Mark the original parent's branch as changed
+      if( a_node->_parent != nil_node)
+         _mulle__rbtree_mark_node_as_dirty( a_tree, a_node->_parent);
 
+      // If we swapped in y, mark it too
+      if( y != a_node && y != nil_node)
+         _mulle__rbtree_mark_node_as_dirty( a_tree, y);
+
+      if( y != a_node && x == nil_node && y_original_parent != nil_node)
+         _mulle__rbtree_mark_node_as_dirty( a_tree, y_original_parent);
+
+      // Mark the replacement x if it's real
+      if( x != nil_node)
+         _mulle__rbtree_mark_node_as_dirty( a_tree, x);
+   }
+#endif
 
    // Actually free the memory of the original node we wanted to delete
    _mulle__rbtree_free_node( a_tree, a_node);
@@ -1074,7 +1095,7 @@ size_t   _mulle__rbtree_get_count( struct mulle__rbtree *a_tree)
    struct mulle_rbnode   *root;
 
    root = _mulle__rbtree_get_root_node( a_tree);
-   __mulle__rbtree_walk_count( a_tree, root);
+   return( __mulle__rbtree_walk_count( a_tree, root));
 }
 
 

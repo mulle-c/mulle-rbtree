@@ -39,18 +39,16 @@
 
 // Red-black tree validation function
 MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_FIRST
 char  *mulle__rbtree_validate(struct mulle__rbtree *a_tree);
 
 
+// print_value_fn == NULL uses "fprintf"
 MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_THIRD
 void  mulle__rbtree_node_dot_fprintf( FILE *fp,
                                       struct mulle__rbtree *tree,
                                       void (*print_value_fn)( FILE *fp, void *));
 
 MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_THIRD
 void  mulle__rbtree_node_ascii_fprintf( FILE *fp,
                                         struct mulle__rbtree *tree,
                                         char *(*print_value_fn)( void *));

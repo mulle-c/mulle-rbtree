@@ -146,10 +146,10 @@ static char   *_mulle__rbtree_validate_node( struct mulle__rbtree *a_tree,
  */
 char   *mulle__rbtree_validate(struct mulle__rbtree *a_tree)
 {
-   struct mulle_rbnode *root;
-   struct mulle_rbnode *nil;
-   char *err;
-   int black_height;  // Unused, but needed for validation call
+   struct mulle_rbnode   *root;
+   struct mulle_rbnode   *nil;
+   char                  *err;
+   int                   black_height;  // Unused, but needed for validation call
 
    if( ! a_tree)
       return( NULL);
