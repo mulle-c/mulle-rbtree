@@ -60,7 +60,7 @@ struct mulle_rbtree
    struct mulle_container_valuecallback    callback;
 };
 
-
+MULLE_C_NONNULL_FIRST
 MULLE__RBTREE_GLOBAL
 void   _mulle_rbtree_init( struct mulle_rbtree *a_tree,
                            int (*a_comp)( void *, void *),
@@ -146,11 +146,12 @@ static inline void   _mulle_rbtree_walk_dirty( struct mulle_rbtree *a_tree)
 
 // 0: success
 MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_FIRST
+MULLE_C_NONNULL_FIRST_SECOND
 int   _mulle_rbtree_add( struct mulle_rbtree *a_tree, void *value);
 
 
 // returns 0 on success
+MULLE_C_NONNULL_SECOND
 static inline int
    mulle_rbtree_add( struct mulle_rbtree *a_tree, void *value)
 {
@@ -167,23 +168,25 @@ void   _mulle_rbtree_remove_node( struct mulle_rbtree *a_tree,
                                   struct mulle_rbnode *node);
 
 
+MULLE_C_NONNULL_SECOND
 static inline void
    mulle_rbtree_remove_node( struct mulle_rbtree *a_tree,
                              struct mulle_rbnode *node)
 {
    if( ! a_tree)
       return;
-   return( _mulle_rbtree_remove_node( a_tree, node));
+   _mulle_rbtree_remove_node( a_tree, node);
 }
 
 
 
 // return 0 on succesful removal
 MULLE__RBTREE_GLOBAL
-MULLE_C_NONNULL_FIRST
+MULLE_C_NONNULL_FIRST_SECOND
 int   _mulle_rbtree_remove( struct mulle_rbtree *a_tree, void *value);
 
 
+MULLE_C_NONNULL_SECOND
 static inline int
    mulle_rbtree_remove( struct mulle_rbtree *a_tree, void *value)
 {

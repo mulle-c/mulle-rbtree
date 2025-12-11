@@ -25,7 +25,7 @@ else()
          ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-storage${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
          ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-storage${CMAKE_STATIC_LIBRARY_SUFFIX}
          mulle-storage
-         NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH
+         NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_FIND_ROOT_PATH
       )
       if( NOT MULLE__STORAGE_LIBRARY AND NOT DEPENDENCY_IGNORE_SYSTEM_LIBARIES)
          find_library( MULLE__STORAGE_LIBRARY NAMES
@@ -78,7 +78,9 @@ else()
          endforeach()
       else()
          # Disable with: `mulle-sourcetree mark mulle-storage no-require-link`
-         message( SEND_ERROR "MULLE__STORAGE_LIBRARY was not found")
+         message( SEND_ERROR "MULLE__STORAGE_LIBRARY was not found in ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-storage${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+${CMAKE_STATIC_LIBRARY_PREFIX}mulle-storage${CMAKE_STATIC_LIBRARY_SUFFIX}
+mulle-storage")
       endif()
    endif()
 endif()

@@ -3,6 +3,8 @@
    {
       description="🍫 mulle-rbtree organizes data in a red/black tree";
       domain="github";
+      language="c";
+      dialect="c";
       name="mulle-rbtree";
       user="mulle-c";
       repo="mulle-rbtree";
