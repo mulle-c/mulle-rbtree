@@ -142,7 +142,8 @@ int   _mulle_rbtree_add( struct mulle_rbtree *a_tree, void *value)
       _mulle__rbtree_free_node( rb__tree, node);
    }
 
-   _mulle_rbtree_walk_dirty( a_tree);
+   if( a_tree->_options & mulle_rbtree_option_use_dirty)
+      _mulle_rbtree_walk_dirty( a_tree);
 
    return( rval);
 }
@@ -160,10 +161,12 @@ void   _mulle_rbtree_remove_node( struct mulle_rbtree *a_tree,
    value     = _mulle__rbtree_get_node_value( rb__tree, node);
    allocator = _mulle_rbtree_get_allocator( a_tree);
    (*a_tree->callback.release)( &a_tree->callback, value, allocator);
-   _mulle__rbtree_mark_node_as_dirty( rb__tree, node); // this will marker parents
+   if( a_tree->_options & mulle_rbtree_option_use_dirty)
+      _mulle__rbtree_mark_node_as_dirty( rb__tree, node); // this will marker parents
    _mulle__rbtree_remove_node( rb__tree, node);
 
-   _mulle_rbtree_walk_dirty( a_tree);
+   if( a_tree->_options & mulle_rbtree_option_use_dirty)
+      _mulle_rbtree_walk_dirty( a_tree);
 }
 
 
