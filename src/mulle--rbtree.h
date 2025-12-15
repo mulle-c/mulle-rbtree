@@ -360,7 +360,9 @@ static inline void   _mulle__rbtree_init_node( struct mulle__rbtree *a_tree,
    a_node->_parent  = _mulle__rbtree_get_nil_node( a_tree);
    a_node->_left    = _mulle__rbtree_get_nil_node( a_tree);
    a_node->_right   = _mulle__rbtree_get_nil_node( a_tree);
-   a_node->_color   = mulle__rbtree_red | mulle__rbtree_dirty;
+   a_node->_color   = mulle__rbtree_red;
+   if( a_tree->_options & mulle_rbtree_option_use_dirty)
+      a_node->_color |= mulle__rbtree_dirty;
    if( a_tree->_options & mulle_rbtree_option_use_extra)
    {
       extra_size = _mulle__rbtree_get_extra_size( a_tree);
