@@ -13,5 +13,4 @@ endif()
 set( SOURCES
 src/mulle--rbtree.c
 src/mulle-rbtree.c
-src/mulle--rbtree-debug.c
 )

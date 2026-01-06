@@ -36,7 +36,6 @@
 #define mulle_rbtree_h__
 
 #include "mulle--rbtree.h"
-#include "mulle--rbtree-debug.h"
 
 #include <errno.h>
 

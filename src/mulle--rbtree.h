@@ -272,6 +272,8 @@ static inline void   _mulle__rbtree_set_node_color( struct mulle__rbtree *a_tree
    assert( color == mulle__rbtree_red || color == mulle__rbtree_black);
    assert( &a_tree->_nil != a_node);
 
+   MULLE_C_UNUSED( a_tree);
+
    _mulle_rbnode_set_color( a_node, color);
 }
 
@@ -283,6 +285,8 @@ static inline void   _mulle__rbtree_set_node_red( struct mulle__rbtree *a_tree,
    // can't set nil to red!
    assert( &a_tree->_nil != a_node);
 
+   MULLE_C_UNUSED( a_tree);
+
    _mulle_rbnode_set_color( a_node, mulle__rbtree_red);
 }
 
@@ -291,6 +295,8 @@ MULLE_C_NONNULL_FIRST_SECOND
 static inline void   _mulle__rbtree_set_node_black( struct mulle__rbtree *a_tree,
                                                     struct mulle_rbnode *a_node)
 {
+   MULLE_C_UNUSED( a_tree);
+
    _mulle_rbnode_set_color( a_node, mulle__rbtree_black);
 }
 
@@ -341,8 +347,9 @@ static inline struct mulle_rbnode   *
    _mulle__rbtree_get_node_from_extra( struct mulle__rbtree *a_tree,
                                        void  *extra)
 {
-
    assert( a_tree->_options & mulle_rbtree_option_use_extra);
+
+   MULLE_C_UNUSED( a_tree);
 
    // dial to end of payload then back up to node
    return( &((struct mulle_rbnode *) ((void **) extra + 1))[ -1]);
