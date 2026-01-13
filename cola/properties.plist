@@ -14,7 +14,6 @@
    dependencies =
    (
       {
-         description="🛅 Memory management for tree nodes";
          domain="github";
          name="mulle-storage";
          repo="mulle-storage";
