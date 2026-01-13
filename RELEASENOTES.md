@@ -1,11 +1,14 @@
-### 0.0.3
+## 0.1.0
 
-Various small improvements
 
-### 0.0.2
 
-Various small improvements
+* split debug into own project (because of `mulle_fprintf` use)
 
-### 0.0.1
 
-* Various small improvements
+
+
+* all tests pass
+
+
+* finally workin length-tree test
+* new API insert before or after node
