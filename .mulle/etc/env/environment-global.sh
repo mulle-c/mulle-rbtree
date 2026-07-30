@@ -46,3 +46,9 @@ export MULLE_SOURCETREE_TO_C_PRIVATEINCLUDE_FILE="DISABLE"
 
 
 
+#
+#
+#
+export vibecoding="off"
+
+
