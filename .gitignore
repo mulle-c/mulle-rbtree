@@ -18,7 +18,6 @@ malloc-error/
 .vscode/
 
 TODO.md
-dox/
 
 environment-os-*.sh
 environment-host-*.sh
