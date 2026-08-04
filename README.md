@@ -15,6 +15,11 @@ memory management. It isn't thread-safe.
 
 
 
+## Documentation & Guides
+
+* [API Summary](asset/dox/api/toc)
+
+
 
 ## Info
 
