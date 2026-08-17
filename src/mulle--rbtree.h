@@ -275,9 +275,9 @@ struct mulle__rbtree
 
 MULLE_C_NONNULL_FIRST
 static inline struct mulle_rbnode  *
-   _mulle__rbtree_get_nil_node( struct mulle__rbtree *a_tree)
+   _mulle__rbtree_get_nil_node( const struct mulle__rbtree *a_tree)
 {
-   return( &a_tree->_nil);
+   return( (struct mulle_rbnode *) &a_tree->_nil);
 }
 
 
@@ -453,7 +453,7 @@ void   _mulle__rbtree_free_node( struct mulle__rbtree *a_tree, void *node)
 /* Operations. */
 MULLE_C_NONNULL_FIRST
 static inline struct mulle_rbnode    *
-   _mulle__rbtree_get_root_node( struct mulle__rbtree *a_tree)
+   _mulle__rbtree_get_root_node( const struct mulle__rbtree *a_tree)
 {
    return( a_tree->_root);
 }
