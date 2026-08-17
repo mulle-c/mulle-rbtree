@@ -1,1 +1,1 @@
-mulle-rbtree;${MULLE__RBTREE_NODETYPE:-tar};;47C7AE65-7607-490B-AA6C-494442109A84;${MULLE__RBTREE_URL:-https://github.com/mulle-kybernetik-tv/mulle-rbtree/archive/${MULLE_TAG}.tar.gz};${MULLE__RBTREE_BRANCH};${MULLE__RBTREE_TAG:-latest};;
+mulle-rbtree;${MULLE__RBTREE_NODETYPE:-tar};;5DCB9864-68D6-4928-9289-73748BF4BEC3;${MULLE__RBTREE_URL:-https://github.com/nat/mulle-rbtree/archive/${MULLE_TAG}.tar.gz};${MULLE__RBTREE_BRANCH};${MULLE__RBTREE_TAG:-latest};;

@@ -134,6 +134,26 @@ static inline struct mulle_allocator    *
 }
 
 
+MULLE_C_NONNULL_FIRST
+static inline int
+   _mulle_rbtree_is_empty( struct mulle_rbtree *a_tree)
+{
+   struct mulle__rbtree   *rb__tree;
+
+   rb__tree = (struct mulle__rbtree *) a_tree;
+
+   return( _mulle__rbtree_get_root_node( rb__tree)
+           == _mulle__rbtree_get_nil_node( rb__tree));
+}
+
+
+static inline int
+   mulle_rbtree_is_empty( struct mulle_rbtree *a_tree)
+{
+   return( a_tree ? _mulle_rbtree_is_empty( a_tree) : 1);
+}
+
+
 
 static inline void   _mulle_rbtree_walk_dirty( struct mulle_rbtree *a_tree)
 {
