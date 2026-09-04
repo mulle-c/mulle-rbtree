@@ -277,7 +277,7 @@ static int   compare_extra_value( void *a, void *b)
 
 static int  release_count;
 
-static void  extra_release( struct mulle_container_valuecallback *callback,
+static void  extra_release( const struct mulle_container_valuecallback *callback,
                             void *value,
                             struct mulle_allocator *allocator)
 {
@@ -285,7 +285,7 @@ static void  extra_release( struct mulle_container_valuecallback *callback,
 }
 
 
-static void  *extra_retain( struct mulle_container_valuecallback *callback,
+static void  *extra_retain( const struct mulle_container_valuecallback *callback,
                             void *value,
                             struct mulle_allocator *allocator)
 {
@@ -306,8 +306,8 @@ static void  test_extra_with_release( void)
    printf( "=== Test: extra + release callback ===\n");
 
    struct mulle_container_valuecallback  cb = {
-      .retain  = (void *(*)( struct mulle_container_valuecallback *, void *, struct mulle_allocator *)) extra_retain,
-      .release = (void (*)( struct mulle_container_valuecallback *, void *, struct mulle_allocator *)) extra_release,
+      .retain  = extra_retain,
+      .release = extra_release,
    };
 
    config.comparison = compare_extra_value;

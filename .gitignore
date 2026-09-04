@@ -81,3 +81,5 @@ build-*/
 *.tmp.*
 *.test.*
 .idea
+.kiro/
+REVIEW.md

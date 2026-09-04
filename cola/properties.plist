@@ -6,7 +6,7 @@
       language="c";
       dialect="c";
       name="mulle-rbtree";
-       version="0.1.2";
+       version="0.2.0";
       user="mulle-c";
       repo="mulle-rbtree";
       homepage="https://github.com/mulle-c/mulle-rbtree";

@@ -40,7 +40,7 @@
 #include <errno.h>
 
 
-#define MULLE__RBTREE_VERSION   ((0UL << 20) | (1 << 8) | 2)
+#define MULLE__RBTREE_VERSION   ((0UL << 20) | (2 << 8) | 0)
 
 
 //
