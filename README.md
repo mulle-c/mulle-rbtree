@@ -39,7 +39,7 @@ Some functions use a comparison function pointer, which is expected to have the
 following prototype:
 
 ``` c
-   int (compare *)( void *payload_a, void *payload_b);
+   int (*compare)( void *payload_a, void *payload_b);
 ```
 
 Interpretation of comparison function return values:
