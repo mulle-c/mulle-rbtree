@@ -27,7 +27,7 @@ include( Environment)
 
 include( Files)
 
-include( IDESupport OPTIONAL)
+# include( IDESupport OPTIONAL)
 
 
 if( "${MULLE_PROJECT_TYPE}" STREQUAL "Executable")
