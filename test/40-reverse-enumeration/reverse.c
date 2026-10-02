@@ -13,7 +13,6 @@ int  main( void)
    struct mulle_rbtree    tree;
    char                   *items[] = { "apple", "banana", "cherry", "date", "elderberry"};
    int                    i;
-   int                    count;
    void                   *payload;
 
    mulle_rbtree_init( &tree,

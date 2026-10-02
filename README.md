@@ -108,6 +108,21 @@ Add mulle-rbtree and dependencies as git submodules and link against
 them:
 
 ``` bash
+git submodule add -f --name "mulle-c11" \
+                            "https://github.com/mulle-c/mulle-c11.git" \
+                            "stash/mulle-c11"
+git submodule add -f --name "mulle-allocator" \
+                            "https://github.com/mulle-c/mulle-allocator.git" \
+                            "stash/mulle-allocator"
+git submodule add -f --name "src/xxhash/xxhash.h" \
+                            "https://raw.githubusercontent.com/mulle-c/xxHash/refs/heads/dev/xxhash.h" \
+                            "stash/src/xxhash/xxhash.h"
+git submodule add -f --name "mulle-data" \
+                            "https://github.com/mulle-c/mulle-data.git" \
+                            "stash/mulle-data"
+git submodule add -f --name "mulle-container" \
+                            "https://github.com/mulle-c/mulle-container.git" \
+                            "stash/mulle-container"
 git submodule add -f --name "mulle-storage" \
                             "https://github.com/mulle-c/mulle-storage.git" \
                             "stash/mulle-storage"
@@ -120,9 +135,19 @@ git submodule update --init --recursive
 ``` cmake
 include_directories( SYSTEM "${CMAKE_BINARY_DIR}/include")
 
+add_subdirectory( stash/mulle-c11)
+add_subdirectory( stash/mulle-allocator)
+add_subdirectory( stash/src/xxhash/xxhash.h)
+add_subdirectory( stash/mulle-data)
+add_subdirectory( stash/mulle-container)
 add_subdirectory( stash/mulle-storage)
 add_subdirectory( stash/mulle-rbtree)
 
+target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-c11)
+target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-allocator)
+target_link_libraries( ${PROJECT_NAME} PUBLIC src/xxhash/xxhash.h)
+target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-data)
+target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-container)
 target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-storage)
 target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-rbtree)
 ```
@@ -146,7 +171,7 @@ cmake -S "mulle-rbtree" -B "${BUILD_DIR}"    \
   -DCMAKE_INSTALL_PREFIX="${PREFIX}"            \
   -DCMAKE_PREFIX_PATH="${PREFIX}"               \
   -DCMAKE_C_FLAGS="-I"${PREFIX}"/include"       \
-&& cmake --build "${BUILD_DIR}" &&              \
+&& cmake --build "${BUILD_DIR}"  --parallel     \
 && cmake --install "${BUILD_DIR}"
 ```
 

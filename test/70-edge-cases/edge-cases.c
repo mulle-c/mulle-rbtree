@@ -33,6 +33,7 @@ static void  test_duplicates( void)
    config.callback   = &mulle_container_valuecallback_copied_cstring;
    config.node_extra = 0;
    config.options    = 0;
+   config.capacity   = 0;   // 0 = default bucket size; config must be fully set
 
    mulle_rbtree_init_with_config( &tree, &config, NULL);
 
@@ -41,7 +42,7 @@ static void  test_duplicates( void)
    rval = mulle_rbtree_add( &tree, "alpha");
    assert( rval == EEXIST);
 
-   count = _mulle__rbtree_get_count( (struct mulle__rbtree *) &tree);
+   count = _mulle__rbtree_get_count( &tree.base);
    printf( "no-dup: count=%zu (expect 1)\n", count);
    assert( count == 1);
 
@@ -60,7 +61,7 @@ static void  test_duplicates( void)
    rval = mulle_rbtree_add( &tree, "bravo");
    assert( rval == 0);
 
-   count = _mulle__rbtree_get_count( (struct mulle__rbtree *) &tree);
+   count = _mulle__rbtree_get_count( &tree.base);
    printf( "dup: count=%zu (expect 4)\n", count);
    assert( count == 4);
 
@@ -75,7 +76,7 @@ static void  test_duplicates( void)
    // remove one "alpha" — should leave 3
    rval = mulle_rbtree_remove( &tree, "alpha");
    assert( rval == 0);
-   count = _mulle__rbtree_get_count( (struct mulle__rbtree *) &tree);
+   count = _mulle__rbtree_get_count( &tree.base);
    printf( "dup after remove: count=%zu (expect 3)\n", count);
    assert( count == 3);
 
@@ -111,6 +112,7 @@ static void  test_walk_dirty_under_deletes( void)
    config.callback   = &mulle_container_valuecallback_copied_cstring;
    config.node_extra = 0;
    config.options    = mulle_rbtree_option_use_dirty;
+   config.capacity   = 0;
 
    mulle_rbtree_init_with_config( &tree, &config, NULL);
 
@@ -139,7 +141,7 @@ static void  test_walk_dirty_under_deletes( void)
 
    // Verify remaining count
    {
-      size_t count = _mulle__rbtree_get_count( (struct mulle__rbtree *) &tree);
+      size_t count = _mulle__rbtree_get_count( &tree.base);
       printf( "remaining count: %zu (expect 25)\n", count);
       assert( count == 25);
    }
@@ -315,6 +317,7 @@ static void  test_extra_with_release( void)
    config.callback   = &cb;
    config.node_extra = sizeof( struct extra_value);
    config.options    = mulle_rbtree_option_use_extra;
+   config.capacity   = 0;
 
    mulle_rbtree_init_with_config( &tree, &config, NULL);
    release_count = 0;
@@ -381,7 +384,7 @@ static void  test_remove_missing_key( void)
    mulle_rbtree_add( &tree, "bravo");
    mulle_rbtree_add( &tree, "charlie");
 
-   count = _mulle__rbtree_get_count( (struct mulle__rbtree *) &tree);
+   count = _mulle__rbtree_get_count( &tree.base);
    printf( "count before: %zu (expect 3)\n", count);
    assert( count == 3);
 
@@ -391,7 +394,7 @@ static void  test_remove_missing_key( void)
    assert( rval == ENOENT);
 
    // Tree must be unchanged
-   count = _mulle__rbtree_get_count( (struct mulle__rbtree *) &tree);
+   count = _mulle__rbtree_get_count( &tree.base);
    printf( "count after: %zu (expect 3)\n", count);
    assert( count == 3);
 

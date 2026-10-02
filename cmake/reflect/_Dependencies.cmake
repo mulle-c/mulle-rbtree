@@ -27,7 +27,7 @@ else()
 endif()
 
 #
-# Generated from sourcetree: 2EBCB276-D217-4A33-83FC-A38A1C5595C9;mulle-storage;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import;
+# Generated from sourcetree: 2EBCB276-D217-4A33-83FC-A38A1C5595C9;mulle-storage;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import,no-singlephase;
 # Disable with : `mulle-sourcetree mark mulle-storage no-link`
 # Disable for this platform: `mulle-sourcetree mark mulle-storage no-cmake-platform-${MULLE_UNAME}`
 # Disable for a sdk: `mulle-sourcetree mark mulle-storage no-cmake-sdk-<name>`

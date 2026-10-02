@@ -49,6 +49,7 @@ static void  test_extra_functionality( void)
    config.callback   = NULL;
    config.node_extra = sizeof( struct test_node) - sizeof( void *); // Extra bytes after payload pointer
    config.options    = mulle_rbtree_option_use_extra;
+   config.capacity   = 0;   // 0 = default bucket size; config must be fully set
    
    mulle_rbtree_init_with_config( &tree, &config, NULL);
    
@@ -67,7 +68,7 @@ static void  test_extra_functionality( void)
       mulle_rbtree_add( &tree, &nodes[i]);
    }
    
-   printf( "\nTree count: %zu\n", _mulle__rbtree_get_count( (struct mulle__rbtree *) &tree));
+   printf( "\nTree count: %zu\n", _mulle__rbtree_get_count( &tree.base));
    
    // Test finding nodes
    printf( "\nTesting find operations:\n");
@@ -157,7 +158,7 @@ static void  test_extra_functionality( void)
       }
    }
    
-   printf( "\nFinal tree count: %zu\n", _mulle__rbtree_get_count( (struct mulle__rbtree *) &tree));
+   printf( "\nFinal tree count: %zu\n", _mulle__rbtree_get_count( &tree.base));
    
    mulle_rbtree_done( &tree);
    printf( "\nTest completed successfully!\n");
