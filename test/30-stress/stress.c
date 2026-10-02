@@ -5,21 +5,11 @@
 #include <assert.h>
 
 
-static int  callback( void *payload, void *userinfo)
-{
-   printf( "%s\n", (char *) payload);
-   return( 1);
-}
-
-
 //
 // https://stackoverflow.com/questions/12252103/read-line-from-stdin-blocking
 //
 int main( int argc, const char * argv[])
 {
-   char                   *line = NULL;
-   size_t                 size;
-   size_t                 len;
    struct mulle_rbtree    tree;
    unsigned int           i;
    unsigned int           count;

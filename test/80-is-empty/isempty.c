@@ -1,3 +1,15 @@
+//
+// The removes below are the test's own setup, so they must not live inside
+// assert(): under NDEBUG the whole expression is compiled away, the removes
+// never happen and the test quietly exercises nothing. Keep the assertions
+// live so the test means the same thing in every build (the convention the
+// mulle-container tests use).
+//
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <assert.h>
+
 #include <mulle-rbtree/mulle-rbtree.h>
 
 #include <string.h>
@@ -14,6 +26,7 @@ static int  string_compare( void *a, void *b)
 int  main( void)
 {
    struct mulle_rbtree   tree;
+   int                   rval;
 
    printf( "=== Test: mulle_rbtree_is_empty ===\n");
 
@@ -34,14 +47,18 @@ int  main( void)
    assert( ! mulle_rbtree_is_empty( &tree));
 
    // removing a missing key leaves it non-empty
-   assert( mulle_rbtree_remove( &tree, "zulu") == ENOENT);
+   rval = mulle_rbtree_remove( &tree, "zulu");
+   assert( rval == ENOENT);
    printf( "empty after failed remove: %d (expect 0)\n", mulle_rbtree_is_empty( &tree));
    assert( ! mulle_rbtree_is_empty( &tree));
 
    // removing all values empties it again
-   assert( mulle_rbtree_remove( &tree, "alpha") == 0);
-   assert( mulle_rbtree_remove( &tree, "bravo") == 0);
-   assert( mulle_rbtree_remove( &tree, "charlie") == 0);
+   rval = mulle_rbtree_remove( &tree, "alpha");
+   assert( rval == 0);
+   rval = mulle_rbtree_remove( &tree, "bravo");
+   assert( rval == 0);
+   rval = mulle_rbtree_remove( &tree, "charlie");
+   assert( rval == 0);
    printf( "empty after removing all: %d (expect 1)\n", mulle_rbtree_is_empty( &tree));
    assert( mulle_rbtree_is_empty( &tree));
 

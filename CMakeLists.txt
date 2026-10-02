@@ -8,7 +8,7 @@
 #
 cmake_minimum_required( VERSION 3.13...99.99)
 
-project( mulle-rbtree VERSION 0.2.0 LANGUAGES C)
+project( mulle-rbtree VERSION 0.2.1 LANGUAGES C)
 
 # if use embedded project with symlinks and you want to distribute their
 # headers you probably need to turn this on
@@ -95,6 +95,11 @@ elseif( "${MULLE_PROJECT_TYPE}" STREQUAL "Library")
    endif()
 
    include( InstallLibrary)
+
+   if( LINK_PHASE)
+      include( AddSubdirectorySupport)
+      include( FindPackageSupport)
+   endif()
 
 else()
 

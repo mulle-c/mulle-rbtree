@@ -70,7 +70,6 @@ int main( int argc, const char * argv[])
    size_t                len;
    struct mulle__rbtree  tree;
    struct mulle_rbnode   *node;
-   void                  *payload;
 
    _mulle__rbtree_init( &tree, NULL);
 

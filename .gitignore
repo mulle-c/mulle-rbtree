@@ -83,3 +83,6 @@ build-*/
 .idea
 .kiro/
 REVIEW.md
+.touch
+*.orig
+*.workspace
