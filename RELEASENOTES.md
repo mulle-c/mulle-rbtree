@@ -1,5 +1,6 @@
 ### 0.2.1
 
+
 feature: add configurable node pool capacity and embed tree base as real member
 
 * new ``mulle_rbtree_config.capacity`` chooses the node pool bucket size (0 = default 32, clamped to `USHRT_MAX)` so callers can match allocation to expected live nodes
