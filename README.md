@@ -10,7 +10,7 @@ memory management. It isn't thread-safe.
 
 | Release Version                                       | Release Notes  | AI Documentation
 |-------------------------------------------------------|----------------|---------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-c/mulle-rbtree.svg) [![Build Status](https://github.com/mulle-c/mulle-rbtree/workflows/CI/badge.svg)](//github.com/mulle-c/mulle-rbtree/actions) | [RELEASENOTES](RELEASENOTES.md) | [DeepWiki for mulle-rbtree](https://deepwiki.com/mulle-c/mulle-rbtree)
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-c/mulle-rbtree.svg) ![standard: C11](pix/c11.svg) ![apis: ansi](pix/apis-ansi.svg) ![memory: allocator](pix/memory-allocator.svg) ![threads: singlethreaded](pix/thread-singlethreaded.svg) [![Build Status](https://github.com/mulle-c/mulle-rbtree/workflows/CI/badge.svg)](//github.com/mulle-c/mulle-rbtree/actions) | [RELEASENOTES](RELEASENOTES.md) | [DeepWiki for mulle-rbtree](https://deepwiki.com/mulle-c/mulle-rbtree)
 
 
 
@@ -71,23 +71,23 @@ In your code include its umbrella header:
 #include <mulle-core/mulle-core.h>
 ```
 
-In your project add mulle-core as a git submodule and link against it:
-
-``` bash
-git submodule add -f "https://github.com/mulle-core/mulle-core.git" \
-                     "stash/mulle-core"
-git submodule update --init --recursive
-```
-
-then add these comands to your `CMakeLists.txt`:
+Add mulle-core to your `CMakeLists.txt` with
+[FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html):
 
 ``` cmake
-include_directories( SYSTEM "stash/mulle-core/src")
-add_subdirectory( stash/mulle-core)
+include( FetchContent)
+
+set( MULLE__CORE_TAG "master" CACHE STRING "branch or tag to fetch mulle-core from")
+
+FetchContent_Declare( MULLE__CORE
+   GIT_REPOSITORY https://github.com/mulle-core/mulle-core.git
+   GIT_TAG        "${MULLE__CORE_TAG}")
+FetchContent_MakeAvailable( MULLE__CORE)
+
 target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-core)
 ```
 
-Or let [mulle-sde](//github.com/mulle-sde) do it:
+Or add to your mulle-sde project with:
 
 ``` sh
 mulle-sde add mulle-core/mulle-core
@@ -104,55 +104,32 @@ In your code include its header:
 #include <mulle-rbtree/mulle-rbtree.h>
 ```
 
-Add mulle-rbtree and dependencies as git submodules and link against
-them:
-
-``` bash
-git submodule add -f --name "mulle-c11" \
-                            "https://github.com/mulle-c/mulle-c11.git" \
-                            "stash/mulle-c11"
-git submodule add -f --name "mulle-allocator" \
-                            "https://github.com/mulle-c/mulle-allocator.git" \
-                            "stash/mulle-allocator"
-git submodule add -f --name "src/xxhash/xxhash.h" \
-                            "https://raw.githubusercontent.com/mulle-c/xxHash/refs/heads/dev/xxhash.h" \
-                            "stash/src/xxhash/xxhash.h"
-git submodule add -f --name "mulle-data" \
-                            "https://github.com/mulle-c/mulle-data.git" \
-                            "stash/mulle-data"
-git submodule add -f --name "mulle-container" \
-                            "https://github.com/mulle-c/mulle-container.git" \
-                            "stash/mulle-container"
-git submodule add -f --name "mulle-storage" \
-                            "https://github.com/mulle-c/mulle-storage.git" \
-                            "stash/mulle-storage"
-git submodule add -f --name "mulle-rbtree" \
-                        "https://github.com/mulle-c/mulle-rbtree" \
-                        "stash/mulle-rbtree"
-git submodule update --init --recursive
-```
+Add mulle-rbtree and its dependencies to your `CMakeLists.txt` with
+[FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html):
 
 ``` cmake
+include( FetchContent)
+
 include_directories( SYSTEM "${CMAKE_BINARY_DIR}/include")
 
-add_subdirectory( stash/mulle-c11)
-add_subdirectory( stash/mulle-allocator)
-add_subdirectory( stash/src/xxhash/xxhash.h)
-add_subdirectory( stash/mulle-data)
-add_subdirectory( stash/mulle-container)
-add_subdirectory( stash/mulle-storage)
-add_subdirectory( stash/mulle-rbtree)
+set( MULLE__STORAGE_TAG "master" CACHE STRING "branch or tag to fetch mulle-storage from")
 
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-c11)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-allocator)
-target_link_libraries( ${PROJECT_NAME} PUBLIC src/xxhash/xxhash.h)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-data)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-container)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-storage)
+FetchContent_Declare( MULLE__STORAGE
+   GIT_REPOSITORY https://github.com/mulle-c/mulle-storage.git
+   GIT_TAG        "${MULLE__STORAGE_TAG}")
+FetchContent_MakeAvailable( MULLE__STORAGE)
+
+set( MULLE__RBTREE_TAG "master" CACHE STRING "branch or tag to fetch mulle-rbtree from")
+
+FetchContent_Declare( MULLE__RBTREE
+   GIT_REPOSITORY https://github.com/mulle-c/mulle-rbtree.git
+   GIT_TAG        "${MULLE__RBTREE_TAG}")
+FetchContent_MakeAvailable( MULLE__RBTREE)
+
 target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-rbtree)
 ```
 
-Or let [mulle-sde](//github.com/mulle-sde) do it:
+Or add to your mulle-sde project with:
 
 ``` sh
 mulle-sde add github:mulle-c/mulle-rbtree

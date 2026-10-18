@@ -6,7 +6,6 @@
       language="c";
       dialect="c";
       name="mulle-rbtree";
-       version="0.2.1";
       user="mulle-c";
       repo="mulle-rbtree";
       homepage="https://github.com/mulle-c/mulle-rbtree";
@@ -15,6 +14,7 @@
    dependencies =
    (
       {
+         description="🛅 Memory management for tree nodes";
          domain="github";
          name="mulle-storage";
          repo="mulle-storage";
