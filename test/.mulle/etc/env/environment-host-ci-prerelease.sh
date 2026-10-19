@@ -1,58 +1,4 @@
 #
-# mulle-rbtree nodetype: ${MULLE__RBTREE_NODETYPE:-tar}
-#
-export MULLE__RBTREE_NODETYPE="git"
-
-
-#
-# mulle-rbtree url: ${MULLE__RBTREE_URL:-https://github.com/mulle-c/mulle-rbtree/archive/${MULLE_TAG}.tar.gz}
-#
-export MULLE__RBTREE_URL="https://github.com/mulle-c/mulle-rbtree.git"
-
-
-#
-# mulle-rbtree branch: ${MULLE__RBTREE_BRANCH}
-#
-export MULLE__RBTREE_BRANCH="prerelease"
-
-
-#
-# mulle-storage nodetype: ${MULLE__STORAGE_NODETYPE:-tar}
-#
-export MULLE__STORAGE_NODETYPE="git"
-
-
-#
-# mulle-storage url: ${MULLE__STORAGE_URL:-https://github.com/mulle-c/mulle-storage/archive/${MULLE_TAG}.tar.gz}
-#
-export MULLE__STORAGE_URL="https://github.com/mulle-c/mulle-storage.git"
-
-
-#
-# mulle-storage branch: ${MULLE__STORAGE_BRANCH}
-#
-export MULLE__STORAGE_BRANCH="prerelease"
-
-
-#
-# mulle-container nodetype: ${MULLE__CONTAINER_NODETYPE:-tar}
-#
-export MULLE__CONTAINER_NODETYPE="git"
-
-
-#
-# mulle-container url: ${MULLE__CONTAINER_URL:-https://github.com/mulle-c/mulle-container/archive/${MULLE_TAG}.tar.gz}
-#
-export MULLE__CONTAINER_URL="https://github.com/mulle-c/mulle-container.git"
-
-
-#
-# mulle-container branch: ${MULLE__CONTAINER_BRANCH}
-#
-export MULLE__CONTAINER_BRANCH="prerelease"
-
-
-#
 # mulle-allocator nodetype: ${MULLE__ALLOCATOR_NODETYPE:-tar}
 #
 export MULLE__ALLOCATOR_NODETYPE="git"
@@ -89,6 +35,24 @@ export MULLE__C11_BRANCH="prerelease"
 
 
 #
+# mulle-container nodetype: ${MULLE__CONTAINER_NODETYPE:-tar}
+#
+export MULLE__CONTAINER_NODETYPE="git"
+
+
+#
+# mulle-container url: ${MULLE__CONTAINER_URL:-https://github.com/mulle-c/mulle-container/archive/${MULLE_TAG}.tar.gz}
+#
+export MULLE__CONTAINER_URL="https://github.com/mulle-c/mulle-container.git"
+
+
+#
+# mulle-container branch: ${MULLE__CONTAINER_BRANCH}
+#
+export MULLE__CONTAINER_BRANCH="prerelease"
+
+
+#
 # mulle-data nodetype: ${MULLE__DATA_NODETYPE:-tar}
 #
 export MULLE__DATA_NODETYPE="git"
@@ -104,5 +68,41 @@ export MULLE__DATA_URL="https://github.com/mulle-c/mulle-data.git"
 # mulle-data branch: ${MULLE__DATA_BRANCH}
 #
 export MULLE__DATA_BRANCH="prerelease"
+
+
+#
+# mulle-rbtree nodetype: ${MULLE__RBTREE_NODETYPE:-tar}
+#
+export MULLE__RBTREE_NODETYPE="git"
+
+
+#
+# mulle-rbtree url: ${MULLE__RBTREE_URL:-https://github.com/mulle-c/mulle-rbtree/archive/${MULLE_TAG}.tar.gz}
+#
+export MULLE__RBTREE_URL="https://github.com/mulle-c/mulle-rbtree.git"
+
+
+#
+# mulle-rbtree branch: ${MULLE__RBTREE_BRANCH}
+#
+export MULLE__RBTREE_BRANCH="prerelease"
+
+
+#
+# mulle-storage nodetype: ${MULLE__STORAGE_NODETYPE:-tar}
+#
+export MULLE__STORAGE_NODETYPE="git"
+
+
+#
+# mulle-storage url: ${MULLE__STORAGE_URL:-https://github.com/mulle-c/mulle-storage/archive/${MULLE_TAG}.tar.gz}
+#
+export MULLE__STORAGE_URL="https://github.com/mulle-c/mulle-storage.git"
+
+
+#
+# mulle-storage branch: ${MULLE__STORAGE_BRANCH}
+#
+export MULLE__STORAGE_BRANCH="prerelease"
 
 
